@@ -127,6 +127,10 @@ depois, só para os componentes de `src/components/ui/`, e convive com ele:
 
 A Vercel publica o site sozinha a cada `git push`.
 
+O `vercel.json` manda toda rota desconhecida para o `index.html` (é o React
+Router que decide a página), menos as pastas de arquivo real: `data/`, `img/`,
+`flags/`, `assets/` e o favicon.
+
 ## Antes de divulgar
 
 - Confirme **por escrito** com o fornecedor que você pode usar as fotos na revenda.
