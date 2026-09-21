@@ -1,3 +1,9 @@
 {
-  "rewrites": [{ "source": "/((?!data/|img/|assets/|favicon).*)", "destination": "/index.html" }]
+  "rewrites": [
+    {
+      "_comment": "Rotas do React Router caem no index.html. As pastas de arquivo real ficam de fora — a Vercel já serve o arquivo antes de reescrever, mas listar aqui deixa a intenção explícita.",
+      "source": "/((?!data/|img/|flags/|assets/|favicon).*)",
+      "destination": "/index.html"
+    }
+  ]
 }
