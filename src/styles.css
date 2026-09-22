@@ -10,27 +10,33 @@
 @import "tailwindcss/utilities.css" layer(utilities);
 @source "./";
 :root {
-  --ground: #F3F5F1; --surface: #FFFFFF; --ink: #13201A; --muted: #5E6B63; --line: #DCE3DD;
-  --green: #146B45; --green-ink: #FFFFFF; --gold: #F2C230; --gold-ink: #2B2200; --chip: #E7ECE8; --photo: #FFFFFF;
-  --shadow: 0 1px 2px rgba(19,32,26,.06), 0 6px 18px rgba(19,32,26,.06);
+  /* Azul da marca — o mesmo #004AAD da logo — em toda a interface. */
+  --brand: #004AAD; --brand-ink: #FFFFFF; --brand-fundo: #003A88;
+  --accent: #004AAD; --accent-ink: #FFFFFF;
+  --ground: #F1F4FA; --surface: #FFFFFF; --ink: #0C1A2E; --muted: #57687F; --line: #D8E0EC;
+  --chip: #E6ECF6; --photo: #FFFFFF;
+  --shadow: 0 1px 2px rgba(12,26,46,.06), 0 6px 18px rgba(12,26,46,.07);
   --display: "Barlow Condensed", "Arial Narrow", Arial, sans-serif;
   --body: "Barlow", "Segoe UI", Roboto, Arial, sans-serif;
   color-scheme: light dark;
 }
 @media (prefers-color-scheme: dark) {
   :root {
-    --ground: #0F1613; --surface: #17221D; --ink: #E8EEE9; --muted: #9AA8A0; --line: #27342D;
-    --green: #3FB57A; --green-ink: #07130D; --gold: #E9B92E; --gold-ink: #1E1700; --chip: #1F2C25; --photo: #F4F4F2;
-    --shadow: 0 1px 2px rgba(0,0,0,.3);
+    /* No escuro o azul da logo perderia contraste: clareia, mantendo o tom. */
+    --brand: #4D96FF; --brand-ink: #04142B; --brand-fundo: #0B2E63;
+    --accent: #1F6FE0; --accent-ink: #FFFFFF;
+    --ground: #08111F; --surface: #101C2E; --ink: #E5EDF8; --muted: #93A4BC; --line: #21314A;
+    --chip: #17263C; --photo: #F4F4F2;
+    --shadow: 0 1px 2px rgba(0,0,0,.4);
   }
 }
 * { box-sizing: border-box; }
 html, body { margin: 0; }
 body { background: var(--ground); color: var(--ink); font: 15px/1.5 var(--body); }
-a { color: var(--green); }
+a { color: var(--brand); }
 img { max-width: 100%; display: block; }
 button { font: inherit; color: inherit; }
-:focus-visible { outline: 2px solid var(--green); outline-offset: 2px; }
+:focus-visible { outline: 2px solid var(--brand); outline-offset: 2px; }
 
 .wrap { max-width: 1240px; margin: 0 auto; padding-inline: 16px; }
 .page { padding-block: 20px 56px; min-height: 70vh; }
@@ -38,8 +44,9 @@ button { font: inherit; color: inherit; }
 /* Cabeçalho */
 .site-header { position: sticky; top: 0; z-index: 20; background: var(--ground); border-bottom: 1px solid var(--line); padding-top: env(safe-area-inset-top, 0px); }
 .header-row { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 22px; padding-block: 12px; }
-.logo { font: 800 26px/1 var(--display); letter-spacing: .02em; color: var(--ink); text-decoration: none; }
-.logo span { color: var(--green); }
+.logo { display: inline-flex; align-items: center; gap: 8px; font: 800 26px/1 var(--display); letter-spacing: .02em; color: var(--ink); text-decoration: none; }
+.logo img { width: 22px; height: auto; filter: brightness(0) saturate(100%) invert(16%) sepia(84%) saturate(3200%) hue-rotate(207deg) brightness(92%) contrast(101%); }
+.logo span { color: var(--brand); }
 .main-nav { display: flex; gap: 16px; }
 .main-nav a { color: var(--muted); text-decoration: none; font-weight: 600; }
 .main-nav a.active, .main-nav a:hover { color: var(--ink); }
@@ -54,7 +61,7 @@ select { width: auto; max-width: 100%; }
 /* Títulos e blocos */
 .hero { padding-block: 18px 8px; }
 .hero h1 { font: 800 clamp(34px, 6vw, 60px)/.98 var(--display); text-transform: uppercase; margin: 0 0 12px; text-wrap: balance; }
-.hero em { font-style: normal; color: var(--green); }
+.hero em { font-style: normal; color: var(--brand); }
 .hero p { color: var(--muted); max-width: 60ch; margin: 0; font-size: 16px; }
 .page-title { font: 800 clamp(30px, 5vw, 44px)/1 var(--display); text-transform: uppercase; margin: 4px 0 6px; }
 .lead { color: var(--muted); margin: 0 0 18px; }
@@ -80,8 +87,8 @@ select { width: auto; max-width: 100%; }
 .country-card .flag-img { width: 38px; height: 26px; margin: 0; border-radius: 4px; }
 .country-card strong { font-size: 16px; }
 .country-card span:last-child { color: var(--muted); font-size: 12.5px; }
-.country-card.accent { border-color: var(--green); }
-.country-card:hover { border-color: var(--green); }
+.country-card.accent { border-color: var(--brand); }
+.country-card:hover { border-color: var(--brand); }
 
 /* Times */
 .team-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 12px; }
@@ -96,11 +103,11 @@ select { width: auto; max-width: 100%; }
 .filters { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-bottom: 16px; }
 .chips { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 2px; max-width: 100%; }
 .chip { flex: 0 0 auto; border: 1px solid var(--line); background: var(--surface); font-weight: 500; font-size: 13px; padding: 8px 12px; border-radius: 999px; cursor: pointer; }
-.chip[aria-pressed="true"] { background: var(--green); border-color: var(--green); color: var(--green-ink); }
+.chip[aria-pressed="true"] { background: var(--brand); border-color: var(--brand); color: var(--brand-ink); }
 .chip small { opacity: .7; margin-left: 5px; }
 .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 14px; }
 .product-card { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; color: var(--ink); text-decoration: none; display: flex; flex-direction: column; box-shadow: var(--shadow); }
-.product-card:hover, .team-card:hover { border-color: var(--green); }
+.product-card:hover, .team-card:hover { border-color: var(--brand); }
 .photo-count { position: absolute; right: 8px; bottom: 8px; background: rgba(19,32,26,.8); color: #fff; font-size: 11px; font-weight: 600; padding: 2px 7px; border-radius: 6px; }
 .product-info { padding: 10px 12px 12px; display: flex; flex-direction: column; gap: 4px; flex: 1; }
 .tags { display: flex; flex-wrap: wrap; gap: 4px; }
@@ -122,7 +129,7 @@ select { width: auto; max-width: 100%; }
 .gallery-hint { position: absolute; left: 10px; bottom: 10px; background: rgba(19,32,26,.75); color: #fff; font-size: 12px; padding: 3px 8px; border-radius: 6px; }
 .thumbs { display: flex; gap: 8px; overflow-x: auto; margin-top: 10px; padding-bottom: 4px; }
 .thumb { flex: 0 0 72px; height: 72px; padding: 0; border: 2px solid transparent; border-radius: 8px; overflow: hidden; background: var(--photo); cursor: pointer; }
-.thumb[aria-current="true"] { border-color: var(--green); }
+.thumb[aria-current="true"] { border-color: var(--brand); }
 .thumb img { width: 100%; height: 100%; object-fit: cover; }
 .product-detail { position: sticky; top: 90px; display: flex; flex-direction: column; gap: 10px; }
 .detail-team { font-weight: 600; text-decoration: none; }
@@ -133,8 +140,8 @@ select { width: auto; max-width: 100%; }
 .sizes legend { font-weight: 600; margin-bottom: 6px; }
 .size-row { display: flex; flex-wrap: wrap; gap: 6px; }
 .size { min-width: 46px; height: 40px; border: 1px solid var(--line); background: var(--surface); border-radius: 8px; font-weight: 600; cursor: pointer; }
-.size[aria-pressed="true"] { border-color: var(--green); background: var(--green); color: var(--green-ink); }
-.order { display: flex; align-items: center; justify-content: center; height: 50px; border-radius: 12px; background: var(--gold); color: var(--gold-ink); font-weight: 700; font-size: 16px; text-decoration: none; margin-top: 4px; }
+.size[aria-pressed="true"] { border-color: var(--brand); background: var(--brand); color: var(--brand-ink); }
+.order { display: flex; align-items: center; justify-content: center; height: 50px; border-radius: 12px; background: var(--accent); color: var(--accent-ink); font-weight: 700; font-size: 16px; text-decoration: none; margin-top: 4px; }
 .order:hover { filter: brightness(.96); }
 .specs { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 16px; margin: 8px 0 0; padding: 12px 0 0; border-top: 1px solid var(--line); }
 .specs dt { font-size: 12px; color: var(--muted); }
@@ -167,3 +174,75 @@ select { width: auto; max-width: 100%; }
   .main-nav { order: 3; }
 }
 @media (prefers-reduced-motion: reduce) { .lb-stage img { transition: none; } }
+
+/* ---- Abertura: marca, globo e carrossel de camisas ---- */
+.marca {
+  position: relative; overflow: hidden; border-radius: 20px; margin-top: 10px;
+  padding: 26px 16px 30px; color: #fff; isolation: isolate;
+  background: radial-gradient(120% 90% at 50% 0%, #0057c8 0%, #00337f 45%, #001a44 100%);
+}
+.marca::before { /* brilho suave atrás do globo */
+  content: ""; position: absolute; inset: 0; z-index: -1;
+  background: radial-gradient(45% 40% at 50% 62%, rgba(77,150,255,.28), transparent 70%);
+}
+.marca-topo { display: flex; align-items: center; justify-content: center; gap: 14px; }
+.marca-topo img { width: clamp(38px, 6vw, 56px); height: auto; }
+.marca h1 {
+  font: 800 clamp(32px, 6.6vw, 62px)/.95 var(--display); text-transform: uppercase;
+  letter-spacing: .01em; margin: 0;
+}
+.marca h1 span { color: #9EC6FF; }
+.marca-lead { margin: 10px auto 0; max-width: 46ch; text-align: center; color: #C6D9F5; font-size: 15px; }
+.marca-numeros { margin: 6px 0 0; text-align: center; color: #9EC6FF; font-size: 13px; letter-spacing: .02em; }
+.marca-numeros strong { color: #fff; font-variant-numeric: tabular-nums; }
+
+.palco { position: relative; height: clamp(270px, 30vw, 350px); perspective: 1000px; margin-top: 4px; }
+.globo { top: 44%; transform: translateY(-50%); max-width: min(66%, 360px); }
+
+/* A órbita é inclinada: assim a metade de cima do globo fica à vista. */
+.anel { position: absolute; inset: 0; transform-style: preserve-3d;
+  transform: rotateX(12deg); animation: girar-anel 48s linear infinite; }
+.anel:hover, .anel:focus-within { animation-play-state: paused; }
+@keyframes girar-anel {
+  from { transform: rotateX(12deg) rotateY(0deg); }
+  to { transform: rotateX(12deg) rotateY(-360deg); }
+}
+
+.camisa {
+  --tam: clamp(86px, 13vw, 124px);
+  --raio: clamp(190px, 30vw, 330px);
+  position: absolute; top: 50%; left: 50%; width: var(--tam);
+  margin: calc(var(--tam) / -2 + 26px) 0 0 calc(var(--tam) / -2);
+  transform: rotateY(var(--giro)) translateZ(var(--raio));
+  backface-visibility: hidden; text-decoration: none; color: #fff;
+}
+.camisa img {
+  width: 100%; aspect-ratio: 1; object-fit: contain; border-radius: 12px;
+  background: #fff; box-shadow: 0 10px 26px rgba(0,0,0,.45);
+  border: 1px solid rgba(255,255,255,.4); padding: 3px;
+}
+.camisa span {
+  display: block; margin-top: 6px; text-align: center; font-size: 11px; font-weight: 700;
+  letter-spacing: .04em; text-transform: uppercase; text-shadow: 0 1px 6px rgba(0,0,0,.7);
+}
+.camisa:hover img { border-color: #fff; }
+
+@media (prefers-reduced-motion: reduce) {
+  .anel { animation: none; transform-style: flat; display: flex; flex-wrap: wrap;
+    align-items: center; justify-content: center; gap: 10px; padding: 12px; overflow: auto; }
+  .camisa { position: static; margin: 0; transform: none; }
+  .globo { display: none; }
+}
+
+/* No celular o anel é menor: os nomes sairiam uns sobre os outros e as
+   camisas passariam da borda. Fica só a foto, que é o que importa. */
+@media (max-width: 620px) {
+  .palco { height: 250px; }
+  .camisa { --tam: 78px; --raio: 132px; margin-top: calc(var(--tam) / -2 + 10px); }
+  .camisa span { display: none; }
+  /* Metade das camisas: as que ficam sobram em ângulos iguais (45°), porque
+     cada uma está fixada em i × 22,5°. Sem elas, 16 se sobreporiam. */
+  .camisa:nth-child(even) { display: none; }
+  .globo { max-width: 74%; }
+  .marca { padding-bottom: 20px; }
+}

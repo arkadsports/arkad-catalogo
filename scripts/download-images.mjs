@@ -71,6 +71,10 @@ async function main() {
   await Promise.all(ids.map((id) => limit(async () => {
     let urls = JSON.parse(await fs.readFile(path.join(RAW, 'photos', `${id}.json`), 'utf8').catch(() => '[]'));
     if (!urls.length && albums[id].cover) urls = [albums[id].cover.replace(/\/(small|medium)\./, '/big.')];
+    // O fornecedor monta o álbum com fotos de detalhe primeiro e a peça
+    // inteira no fim. Então a ÚLTIMA foto é a que serve de capa — a primeira
+    // costuma ser um recorte de tecido, e ainda traz a marca d'água dele.
+    urls = urls.length > 1 ? [urls[urls.length - 1], ...urls.slice(0, -1)] : urls;
     if (args.covers) urls = urls.slice(0, 1);
     const dir = path.join(IMG, id);
     await fs.mkdir(dir, { recursive: true });

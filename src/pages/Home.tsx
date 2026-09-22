@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 import { useCatalog } from '../lib/catalog';
 import { Flag, Loading, TeamCard } from '../components/cards';
 import CountryGallery from '../components/CountryGallery';
+import Hero from '../components/Hero';
 
 export default function Home() {
   const { ready, catalog } = useCatalog();
@@ -13,10 +14,7 @@ export default function Home() {
 
   return (
     <>
-      <section className="hero">
-        <h1>Camisas de futebol<br />de <em>{clubs.length} clubes</em> e <em>{nations.length} seleções</em></h1>
-        <p>{catalog.products.length.toLocaleString('pt-BR')} modelos: torcedor, jogador, retrô, feminina, treino e mais. Comece escolhendo o país.</p>
-      </section>
+      <Hero clubes={clubs.length} selecoes={nations.length} modelos={catalog.products.length} />
 
       {/* Bandeiras: escolher o país filtra os clubes logo abaixo */}
       <CountryGallery />

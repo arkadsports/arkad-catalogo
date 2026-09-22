@@ -13,10 +13,12 @@
     "upload-images": "node --env-file=.env scripts/upload-r2.mjs",
     "lint": "oxlint",
     "flags": "node scripts/download-flags.mjs",
-    "fotos": "node --env-file-if-exists=.env scripts/fotos-em-lotes.mjs"
+    "fotos": "node --env-file-if-exists=.env scripts/fotos-em-lotes.mjs",
+    "vitrine": "node scripts/montar-vitrine.mjs"
   },
   "dependencies": {
     "clsx": "^2.1.1",
+    "cobe": "^2.0.1",
     "lucide-react": "^1.47.0",
     "react": "^19.2.8",
     "react-dom": "^19.2.8",

@@ -20,6 +20,7 @@ export default function Layout() {
       <header className="site-header">
         <div className="wrap header-row">
           <Link to="/" className="logo" aria-label={`${STORE.name} — início`}>
+            <img src="/logo-a.png" alt="" width={22} height={27} />
             ARKAD <span>SPORTS</span>
           </Link>
           <nav className="main-nav" aria-label="Principal">
