@@ -4,5 +4,6 @@ dist
 # Dados brutos do fornecedor e imagens baixadas: ficam só no seu computador
 # (e no R2). O repositório é público — o catálogo do fornecedor não entra nele.
 data/raw/
+data/.lote.json
 public/img/
 !public/img/.gitkeep

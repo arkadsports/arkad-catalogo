@@ -12,7 +12,8 @@
     "images": "node --env-file-if-exists=.env scripts/download-images.mjs",
     "upload-images": "node --env-file=.env scripts/upload-r2.mjs",
     "lint": "oxlint",
-    "flags": "node scripts/download-flags.mjs"
+    "flags": "node scripts/download-flags.mjs",
+    "fotos": "node --env-file-if-exists=.env scripts/fotos-em-lotes.mjs"
   },
   "dependencies": {
     "clsx": "^2.1.1",

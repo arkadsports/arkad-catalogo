@@ -7,6 +7,7 @@
 //   npm run images -- --covers            -> só a 1ª foto de cada álbum (rápido, bom para começar)
 //   npm run images -- --team=flamengo     -> só um time (use o "slug" do time, como aparece na URL do site)
 //   npm run images -- --limit=50          -> só os 50 primeiros álbuns (para testar)
+//   npm run images -- --albums=lote.json  -> só os álbuns listados no arquivo (uso interno)
 //
 // Depois de baixar, rode de novo: npm run build-catalog
 //
@@ -49,6 +50,11 @@ async function main() {
   const manifest = JSON.parse(await fs.readFile(MANIFEST, 'utf8').catch(() => '{}'));
   let ids = Object.keys(albums).filter((id) => !albums[id].locked);
 
+  // Lista de álbuns vinda de um arquivo (usada pelo fotos-em-lotes.mjs).
+  if (args.albums) {
+    const lista = new Set(JSON.parse(await fs.readFile(args.albums, 'utf8')));
+    ids = ids.filter((id) => lista.has(id));
+  }
   if (args.team) {
     const catalog = JSON.parse(await fs.readFile('public/data/catalog.json', 'utf8').catch(() => '{"products":[]}'));
     const set = new Set(catalog.products.filter((p) => p.team === args.team).map((p) => p.id));
