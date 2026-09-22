@@ -120,8 +120,8 @@ depois, só para os componentes de `src/components/ui/`, e convive com ele:
 álbum com fotos de detalhe primeiro (um pedaço de tecido, uma etiqueta, uma
 gola) e deixa a peça inteira, de frente, no manequim, no fim. Usar a primeira
 foto acertava em cerca de 1 de cada 8 álbuns; a última acerta em 8 de cada
-12, medido numa amostra aleatória. O  reordena o álbum
-por isso — se um dia o fornecedor mudar a ordem, é lá que se ajusta.
+12, medido numa amostra aleatória. O `scripts/download-images.mjs` reordena
+o álbum por isso — se um dia o fornecedor mudar a ordem, é lá que se ajusta.
 
 **Marca d'água:** as fotos de detalhe trazem o endereço do fornecedor
 impresso. A foto da capa é limpa, as de detalhe não. Decisão registrada em
