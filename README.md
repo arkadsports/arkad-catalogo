@@ -37,6 +37,9 @@ A etapa 2 roda de novo sempre que você baixar fotos novas ou mudar as regras de
 | `scripts/build-catalog.mjs` | Etapa 2: monta `public/data/catalog.json` (países, times, produtos) |
 | `scripts/download-images.mjs` | Etapa 3: baixa as fotos em 2 tamanhos (600 px e 1600 px) |
 | `scripts/download-flags.mjs` | Baixa as bandeiras dos países (`npm run flags`) |
+| `scripts/montar-vitrine.mjs` | Monta as camisas do carrossel da abertura (`npm run vitrine`) |
+| `scripts/fotos-em-lotes.mjs` | Baixa tudo em lotes, subindo para o R2 e apagando o local (`npm run fotos`) |
+| `scripts/testar-r2.mjs` | Confere as chaves do R2 antes de subir (`npm run testar-r2`) |
 | `scripts/upload-r2.mjs` | Envia as fotos para o Cloudflare R2 |
 | `scripts/lib/classify.mjs` | **Regras**: país de cada liga, apelidos dos times, seleções, tipos, tradução dos nomes |
 | `src/config.ts` | **Configurações da loja**: WhatsApp, preços por tipo, prazo |
