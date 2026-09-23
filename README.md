@@ -120,10 +120,14 @@ depois, só para os componentes de `src/components/ui/`, e convive com ele:
 com fotos de detalhe (tecido, etiqueta, gola) e a peça inteira no meio delas —
 sem posição fixa: é a última em 48% dos álbuns, a primeira em 25%, do meio nos
 outros 27%. Nenhuma regra de posição acerta. Mas a listagem dele mostra, em
-cada cartão, a foto da peça inteira: é essa a capa, e ela fica guardada em
- (pelo ). O  descobre qual das fotos
-baixadas é ela e grava o índice no campo  de cada produto; o site usa esse
-índice no cartão e abre a galeria nele.
+cada cartão, a foto da peça inteira: é essa a capa, e o `sync` a guarda em
+`data/raw/capas.json`. O `build-catalog` descobre qual das fotos baixadas é
+ela e grava o índice no campo `c` de cada produto; o site usa esse índice no
+cartão e abre a galeria nele.
+
+Atenção ao ler o código: o `download-images.mjs` reordena o álbum para
+`[última, 0, 1, ...]`, então o índice do arquivo no R2 não é a posição na
+lista original. A conversão está no `indiceCapa`, dentro do `build-catalog`.
 
 **Marca d'água:** as fotos de detalhe trazem o endereço do fornecedor
 impresso. A foto da capa é limpa, as de detalhe não. Decisão registrada em
