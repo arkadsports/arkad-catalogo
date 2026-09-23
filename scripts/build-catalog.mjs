@@ -26,6 +26,22 @@ async function main() {
   const albums = await readJson(path.join(RAW, 'albums.json'), null);
   if (!categories || !albums) throw new Error('Rode antes: npm run sync (faltam data/raw/categories.json e albums.json)');
   const images = await readJson(IMAGES_MANIFEST, {}); // { albumId: nº de fotos baixadas }
+  const capas = await readJson(path.join(RAW, 'capas.json'), {}); // { albumId: url da capa }
+
+  // Qual das fotos do álbum é a capa. O fornecedor escolhe uma — sempre a
+  // peça inteira — e é ela que aparece no cartão do site dele. Não tem
+  // posição fixa: é a última em 48% dos álbuns, a primeira em 25%.
+  // O download reordena o álbum para [última, 0, 1, ...], então a posição na
+  // lista original vira outro índice de arquivo.
+  const indiceCapa = async (id) => {
+    const url = capas[id];
+    if (!url) return 0;
+    const urls = await readJson(path.join(RAW, 'photos', id + '.json'), []);
+    const hash = url.split('/')[4];
+    const i = urls.findIndex((u) => u.includes(hash));
+    if (i < 0) return 0;
+    return i === urls.length - 1 ? 0 : i + 1;
+  };
 
   const catById = Object.fromEntries(categories.map((c) => [c.id, c]));
 
@@ -104,6 +120,7 @@ async function main() {
       y: seasonYear(s),                // ano para ordenar
       sz: sizes(title),
       ph: images[a.id] || 0,           // fotos baixadas (0 = ainda sem imagem)
+      c: await indiceCapa(a.id),       // qual dessas fotos é a capa
     });
   }
 
@@ -112,7 +129,7 @@ async function main() {
   for (const p of products) {
     const tm = teams.get(p.team);
     tm.products++;
-    if (!tm.cover && p.ph) tm.cover = p.id;
+    if (!tm.cover && p.ph) { tm.cover = p.id; tm.coverC = p.c; }
   }
   const usedTeams = [...teams.values()].filter((t) => t.products > 0 || t.locked > 0)
     .sort((a, b) => b.products - a.products || a.name.localeCompare(b.name));

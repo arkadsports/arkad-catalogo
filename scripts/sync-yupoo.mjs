@@ -76,7 +76,17 @@ async function readCategoryAlbums(cat) {
       if (!id || seen.has(id)) return;
       seen.add(id);
       added++;
-      albums.push({ id, locked, title: locked ? '' : ($(a).attr('title') || '').trim(), cover: locked ? '' : ($(a).find('img').attr('src') || '') });
+      // A capa vem em data-src: a listagem carrega as imagens sob demanda e
+      // o src fica com um espaço reservado. Ela é a foto da peça inteira que
+      // o fornecedor escolheu para o cartão — o site usa a mesma.
+      const capaImg = $(a).find('img').first();
+      const capa = capaImg.attr('data-src') || capaImg.attr('data-origin-src') || capaImg.attr('src') || '';
+      albums.push({
+        id,
+        locked,
+        title: locked ? '' : ($(a).attr('title') || '').trim(),
+        cover: locked || capa.startsWith('data:') ? '' : (capa.startsWith('//') ? 'https:' + capa : capa),
+      });
     });
     if (added === 0 || $('a.album__main').length < 100) break; // página vazia ou última página
     await sleep(300);

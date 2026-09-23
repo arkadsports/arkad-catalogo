@@ -116,12 +116,14 @@ depois, só para os componentes de `src/components/ui/`, e convive com ele:
 
 ## As fotos do fornecedor
 
-**A capa de cada produto é a ÚLTIMA foto do álbum.** O fornecedor monta o
-álbum com fotos de detalhe primeiro (um pedaço de tecido, uma etiqueta, uma
-gola) e deixa a peça inteira, de frente, no manequim, no fim. Usar a primeira
-foto acertava em cerca de 1 de cada 8 álbuns; a última acerta em 8 de cada
-12, medido numa amostra aleatória. O `scripts/download-images.mjs` reordena
-o álbum por isso — se um dia o fornecedor mudar a ordem, é lá que se ajusta.
+**A capa de cada produto é a que o fornecedor escolheu.** Ele monta o álbum
+com fotos de detalhe (tecido, etiqueta, gola) e a peça inteira no meio delas —
+sem posição fixa: é a última em 48% dos álbuns, a primeira em 25%, do meio nos
+outros 27%. Nenhuma regra de posição acerta. Mas a listagem dele mostra, em
+cada cartão, a foto da peça inteira: é essa a capa, e ela fica guardada em
+ (pelo ). O  descobre qual das fotos
+baixadas é ela e grava o índice no campo  de cada produto; o site usa esse
+índice no cartão e abre a galeria nele.
 
 **Marca d'água:** as fotos de detalhe trazem o endereço do fornecedor
 impresso. A foto da capa é limpa, as de detalhe não. Decisão registrada em

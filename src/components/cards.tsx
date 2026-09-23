@@ -23,7 +23,7 @@ export function TeamCard({ team }: { team: Team }) {
   const total = team.products + (team.locked ?? 0);
   return (
     <Link to={`/time/${team.slug}`} className="team-card">
-      <div className="team-photo"><Photo id={team.cover} alt={team.name} has={!!team.cover} /></div>
+      <div className="team-photo"><Photo id={team.cover} index={team.coverC ?? 0} alt={team.name} has={!!team.cover} /></div>
       <div className="team-info">
         <strong>{team.flag && <Flag slug={team.countrySlug} emoji={team.flag} />}{team.name}</strong>
         <span>{total} {total === 1 ? 'modelo' : 'modelos'}</span>
@@ -39,7 +39,7 @@ export function ProductCard({ p }: { p: Product }) {
   return (
     <Link to={`/produto/${p.id}`} className="product-card">
       <div className="product-photo">
-        <Photo id={p.id} alt={`${team?.name ?? ''} ${p.type} ${p.s}`} has={p.ph > 0} />
+        <Photo id={p.id} index={p.c ?? 0} alt={`${team?.name ?? ''} ${p.type} ${p.s}`} has={p.ph > 0} />
         {p.ph > 1 && <span className="photo-count">{p.ph} fotos</span>}
       </div>
       <div className="product-info">

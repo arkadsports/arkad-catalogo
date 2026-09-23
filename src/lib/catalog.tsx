@@ -5,10 +5,12 @@ import { IMAGE_BASE, PRICES, STORE } from '../config';
 export type Country = { slug: string; name: string; flag: string; clubs: number; products: number };
 export type Team = {
   slug: string; name: string; kind: 'clube' | 'selecao' | 'outros'; country: string; countrySlug: string;
-  league: string; products: number; locked?: number; cover: string | null; flag?: string;
+  league: string; products: number; locked?: number; cover: string | null; coverC?: number; flag?: string;
 };
 export type Product = {
   id: string; t: string; n: string; team: string; type: string; s: string; y: number; sz: string; ph: number;
+  /** Índice da foto que o fornecedor usa como capa — a da peça inteira. */
+  c?: number;
 };
 type Catalog = { generatedAt: string; countries: Country[]; teams: Team[]; products: Product[] };
 

@@ -3,8 +3,10 @@ import { useCallback, useEffect, useState } from 'react';
 import { Photo } from './cards';
 import { img } from '../lib/catalog';
 
-export default function Gallery({ id, count, alt }: { id: string; count: number; alt: string }) {
-  const [index, setIndex] = useState(0);
+export default function Gallery({ id, count, alt, cover = 0 }: { id: string; count: number; alt: string; cover?: number }) {
+  // Abre na capa — a foto da peça inteira — e não na primeira do álbum, que
+  // no fornecedor costuma ser um detalhe de tecido.
+  const [index, setIndex] = useState(cover);
   const [open, setOpen] = useState(false);
   const [zoom, setZoom] = useState<{ x: number; y: number } | null>(null);
   const total = Math.max(count, 1);

@@ -25,7 +25,7 @@ export default function ProductPage() {
         <Link to="/">Início</Link> / <Link to={`/time/${p.team}`}>{team?.name}</Link> / {productName(p)}
       </nav>
       <div className="product-layout">
-        <Gallery id={p.id} count={p.ph} alt={alt} />
+        <Gallery id={p.id} count={p.ph} cover={p.c ?? 0} alt={alt} />
 
         <section className="product-detail">
           <Link to={`/time/${p.team}`} className="detail-team">{team?.flag ? `${team.flag} ` : ''}{team?.name}</Link>
