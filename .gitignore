@@ -8,5 +8,7 @@ data/.lote.json
 # log da subida das fotos (roda por horas, fica só no computador)
 fotos.log
 fotos.err
+teste-marca.png
+mapa.png
 public/img/
 !public/img/.gitkeep
