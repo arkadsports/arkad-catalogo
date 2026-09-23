@@ -8,7 +8,15 @@
 // Escreve e apaga um arquivinho de teste. Não mexe em nada mais.
 import { S3Client, PutObjectCommand, HeadObjectCommand, DeleteObjectCommand, HeadBucketCommand } from '@aws-sdk/client-s3';
 
-const { R2_ACCOUNT_ID, R2_ACCESS_KEY_ID, R2_SECRET_ACCESS_KEY, R2_BUCKET, VITE_IMAGE_BASE } = process.env;
+const env = { ...process.env };
+
+// É fácil colar o endereço da tela em vez do valor. Quando dá para entender o
+// que a pessoa quis dizer, a gente entende em vez de reclamar.
+const soId = (v) => (v || '').match(/[0-9a-f]{32}/i)?.[0] ?? (v || '').trim();
+env.R2_ACCOUNT_ID = soId(env.R2_ACCOUNT_ID);
+env.VITE_IMAGE_BASE = (env.VITE_IMAGE_BASE || '').trim().replace(/\/$/, '');
+
+const { R2_ACCOUNT_ID, R2_ACCESS_KEY_ID, R2_SECRET_ACCESS_KEY, R2_BUCKET, VITE_IMAGE_BASE } = env;
 
 const falta = [];
 if (!R2_ACCOUNT_ID) falta.push('R2_ACCOUNT_ID');
@@ -21,11 +29,29 @@ if (falta.length) {
 }
 
 // Confere o formato antes de bater no servidor: economiza um erro confuso.
-const avisos = [];
-if (!/^[0-9a-f]{32}$/i.test(R2_ACCOUNT_ID)) avisos.push('R2_ACCOUNT_ID não parece um id de conta (esperado 32 caracteres hexadecimais)');
-if (!/^[0-9a-f]{32}$/i.test(R2_ACCESS_KEY_ID)) avisos.push('R2_ACCESS_KEY_ID não parece uma chave (esperado 32 caracteres hexadecimais)');
-if (R2_SECRET_ACCESS_KEY.length < 40) avisos.push('R2_SECRET_ACCESS_KEY parece curta demais (a do R2 tem 64 caracteres)');
-for (const a of avisos) console.warn(`  aviso: ${a}`);
+// Os enganos mais comuns são colar o endereço da tela, ou pegar o id da conta
+// achando que é a chave — os dois vêm de telas diferentes do painel.
+const erros = [];
+if (!/^[0-9a-f]{32}$/i.test(R2_ACCOUNT_ID)) {
+  erros.push('R2_ACCOUNT_ID não é um id de conta (esperado 32 caracteres de a-f e números)');
+}
+if (/^https?:/i.test(R2_ACCESS_KEY_ID) || /^https?:/i.test(R2_SECRET_ACCESS_KEY)) {
+  erros.push('R2_ACCESS_KEY_ID / R2_SECRET_ACCESS_KEY estão com um endereço colado, não com a chave.\n' +
+    '     A chave não fica na tela do bucket: ela nasce em R2 > Manage API Tokens > Create API Token.');
+}
+if (R2_ACCESS_KEY_ID === R2_ACCOUNT_ID) {
+  erros.push('R2_ACCESS_KEY_ID está com o id da CONTA, que é outra coisa.\n' +
+    '     A chave de API vem de R2 > Manage API Tokens > Create API Token.');
+}
+if (R2_SECRET_ACCESS_KEY.length < 40) {
+  erros.push(`R2_SECRET_ACCESS_KEY tem ${R2_SECRET_ACCESS_KEY.length} caracteres; a do R2 tem 64`);
+}
+if (erros.length) {
+  console.error('');
+  for (const e of erros) console.error(`✗ ${e}`);
+  console.error('');
+  process.exit(1);
+}
 
 const s3 = new S3Client({
   region: 'auto',
