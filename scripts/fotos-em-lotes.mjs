@@ -62,6 +62,20 @@ const tamanhoLocalMB = async () => {
 const albums = JSON.parse(await fs.readFile(path.join(RAW, 'albums.json'), 'utf8'));
 const todos = Object.keys(albums).filter((id) => !albums[id].locked);
 
+// Quantas fotos cada álbum tem. Um álbum que já passou por aqui só de capa
+// aparece no manifesto com 1 foto — mas ainda deve as outras, então não pode
+// contar como pronto.
+const esperado = new Map();
+for (const id of todos) {
+  const n = await fs.readFile(path.join(RAW, 'photos', `${id}.json`), 'utf8')
+    .then((t) => JSON.parse(t).length, () => 0);
+  esperado.set(id, n);
+}
+
+// Álbuns já tentados nesta rodada. Foto que dá 404 no fornecedor nunca chega à
+// contagem esperada; sem esta lista, o laço a tentaria para sempre.
+const tentados = new Set();
+
 // Primeiro, esvazia o que tiver sobrado de uma interrupção anterior.
 if (await tamanhoLocalMB() > 1) {
   console.log('Sobrou foto de uma rodada anterior. Enviando antes de continuar...');
@@ -71,7 +85,9 @@ if (await tamanhoLocalMB() > 1) {
 let lote = 0;
 while (lote < MAX_LOTES) {
   const manifest = JSON.parse(await fs.readFile(MANIFEST, 'utf8').catch(() => '{}'));
-  const pendentes = todos.filter((id) => manifest[id] === undefined);
+  const pendentes = todos.filter(
+    (id) => !tentados.has(id) && (manifest[id] ?? 0) < esperado.get(id),
+  );
   if (!pendentes.length) {
     console.log('\nTodos os álbuns já foram baixados e enviados.');
     break;
@@ -89,6 +105,7 @@ while (lote < MAX_LOTES) {
   const feitos = todos.length - pendentes.length;
   console.log(`\n=== Lote ${lote} · ${atual.length} álbuns · ${feitos}/${todos.length} prontos · ${livre.toFixed(1)} GB livres ===`);
 
+  for (const id of atual) tentados.add(id);
   await fs.writeFile(LOTE_TMP, JSON.stringify(atual));
   await rodar('download-images.mjs', `--albums=${LOTE_TMP}`);
   console.log(`   baixados ${(await tamanhoLocalMB()).toFixed(0)} MB — enviando para o R2...`);

@@ -17,6 +17,9 @@ export const PRICES: Record<string, number> = {
   'Retrô': 199.9,
 };
 
-// Onde as fotos estão. Local: '/img' (pasta public/img).
-// Publicado: URL pública do bucket do Cloudflare R2 (variável VITE_IMAGE_BASE).
-export const IMAGE_BASE = (import.meta.env.VITE_IMAGE_BASE as string | undefined)?.replace(/\/$/, '') || '/img';
+// Onde as fotos estão. O padrão é o bucket público do Cloudflare R2, que é
+// endereço público mesmo — não é segredo, e deixá-lo aqui evita ter de
+// cadastrar variável de ambiente na Vercel a cada projeto novo.
+// Para desenvolver com as fotos da pasta public/img, ponha VITE_IMAGE_BASE=/img no .env.
+const R2 = "https://pub-5d730db9d93247579dd905474ae50aba.r2.dev";
+export const IMAGE_BASE = (import.meta.env.VITE_IMAGE_BASE as string | undefined)?.replace(/\/$/, '') || R2;
