@@ -296,7 +296,10 @@ async function testar() {
   console.log('teste-marca.png: linhas alternadas — antes, depois, antes, depois...');
 }
 
-if (args.includes('--estimar')) await estimar();
-else if (args.includes('--calibrar')) await calibrar();
-else if (args.includes('--testar')) await testar();
-else console.log('use: npm run marca -- --estimar   ou   npm run marca -- --testar');
+// Só roda os comandos quando chamado direto; importado, só exporta funções.
+if (process.argv[1]?.endsWith('marca-dagua.mjs')) {
+  if (args.includes('--estimar')) await estimar();
+  else if (args.includes('--calibrar')) await calibrar();
+  else if (args.includes('--testar')) await testar();
+  else console.log('use: npm run marca -- --estimar | --calibrar | --testar');
+}

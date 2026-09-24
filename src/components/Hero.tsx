@@ -31,22 +31,23 @@ export default function Hero({
     [],
   );
 
-  // Uma foto por letra de ARKAD, para o preenchimento do texto.
-  const letras = useMemo(() => VITRINE.slice(0, 5).map((c) => `/hero/${c.slug}.webp`), []);
+  // Uma foto por letra do nome, para o preenchimento do texto.
+  const letras = useMemo(() => VITRINE.map((c) => `/hero/${c.slug}.webp`), []);
 
   return (
     <section className="marca">
+      {/* O "A" da logo fica no canto superior direito, como assinatura. */}
+      <img className="marca-selo" src="/logo-a.png" alt="" width={56} height={69} />
+
       <div className="marca-topo">
-        <img src="/logo-a.png" alt="" width={56} height={69} />
         <RevealText
-          text="ARKAD"
+          text="ARKAD SPORTS"
           fontSize="marca-letra"
           textColor="text-white"
           overlayColor="text-[#9EC6FF]"
           letterImages={letras}
         />
       </div>
-      <p className="marca-sports">Sports</p>
 
       <p className="marca-lead">
         Camisas de time do mundo inteiro, sob encomenda e direto do fornecedor.

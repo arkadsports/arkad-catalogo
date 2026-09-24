@@ -5,6 +5,7 @@ dist
 # (e no R2). O repositório é público — o catálogo do fornecedor não entra nele.
 data/raw/
 data/.lote.json
+data/limpeza.json
 # log da subida das fotos (roda por horas, fica só no computador)
 fotos.log
 fotos.err

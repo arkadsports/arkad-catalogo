@@ -21,7 +21,10 @@ export default function Layout() {
         <div className="wrap header-row">
           <Link to="/" className="logo" aria-label={`${STORE.name} — início`}>
             <img src="/logo-a.png" alt="" width={22} height={27} />
-            ARKAD <span>SPORTS</span>
+            <span className="logo-nome">
+              <b>ARKAD</b>
+              <span>Sports</span>
+            </span>
           </Link>
           <nav className="main-nav" aria-label="Principal">
             <NavLink to="/clubes">Clubes</NavLink>

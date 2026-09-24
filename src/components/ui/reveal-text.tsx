@@ -46,6 +46,11 @@ export function RevealText({
     <div className={`relative flex items-center justify-center ${className}`}>
       <div className="flex">
         {text.split('').map((letter, index) => {
+          // O espaço entre palavras não recebe imagem nem animação: vira só
+          // uma folga, senão some dentro do overflow-hidden da letra.
+          if (letter === ' ') {
+            return <span key={index} className={`${fontSize} inline-block w-[0.32em]`} aria-hidden="true" />;
+          }
           const imagem = letterImages.length
             ? letterImages[index % letterImages.length]
             : null;
