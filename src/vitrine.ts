@@ -2,42 +2,42 @@
 // As camisas do carrossel da página inicial.
 export const VITRINE = [
   {
-    "id": "210879831",
+    "id": "236109499",
     "time": "Barcelona",
     "slug": "barcelona"
   },
   {
-    "id": "190502753",
+    "id": "227575396",
     "time": "Real Madrid",
     "slug": "real-madrid"
   },
   {
-    "id": "212192317",
+    "id": "224861961",
     "time": "Flamengo",
     "slug": "flamengo"
   },
   {
-    "id": "197820668",
+    "id": "225669792",
     "time": "Vasco da Gama",
     "slug": "vasco-da-gama"
   },
   {
-    "id": "211961909",
+    "id": "224861008",
     "time": "Fluminense",
     "slug": "fluminense"
   },
   {
-    "id": "211563080",
+    "id": "224171065",
     "time": "Palmeiras",
     "slug": "palmeiras"
   },
   {
-    "id": "211959333",
+    "id": "244522276",
     "time": "Chelsea",
     "slug": "chelsea"
   },
   {
-    "id": "211961043",
+    "id": "233497300",
     "time": "Arsenal",
     "slug": "arsenal"
   }

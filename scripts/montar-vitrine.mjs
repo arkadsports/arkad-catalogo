@@ -4,8 +4,12 @@
 //
 //   npm run vitrine
 //
-// Usa a ÚLTIMA foto de cada álbum: o fornecedor põe as fotos de detalhe
-// primeiro e a peça inteira no fim.
+// Usa a CAPA que o fornecedor escolheu para o álbum (data/raw/capas.json):
+// é sempre a peça inteira, de frente, e sem marca d'água.
+//
+// A camisa de cada clube é escolhida na hora — sempre a da temporada mais
+// recente — e não fica escrita no arquivo. Rode de novo depois de cada sync
+// para a vitrine acompanhar os lançamentos.
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import sharp from 'sharp';
@@ -13,28 +17,53 @@ import sharp from 'sharp';
 const ROOT = path.resolve(import.meta.dirname, '..');
 const OUT = path.join(ROOT, 'public', 'hero');
 
-// Os times que mais vendem no Brasil e no mundo. O id é o do produto cuja
-// capa vira a foto do carrossel; conferido com scripts/montar-vitrine.mjs.
-const VITRINE = [
-  { id: '210879831', time: 'Barcelona', slug: 'barcelona' },
-  { id: '190502753', time: 'Real Madrid', slug: 'real-madrid' },
-  { id: '212192317', time: 'Flamengo', slug: 'flamengo' },
-  { id: '197820668', time: 'Vasco da Gama', slug: 'vasco-da-gama' },
-  { id: '211961909', time: 'Fluminense', slug: 'fluminense' },
-  { id: '211563080', time: 'Palmeiras', slug: 'palmeiras' },
-  { id: '211959333', time: 'Chelsea', slug: 'chelsea' },
-  { id: '211961043', time: 'Arsenal', slug: 'arsenal' },
+// Os clubes da vitrine. A CAMISA de cada um não fica escrita aqui: é
+// escolhida na hora, sempre a mais recente. Assim, quando o fornecedor
+// lançar a 27/28, basta rodar `npm run vitrine` de novo.
+const CLUBES = [
+  { slug: 'barcelona', time: 'Barcelona' },
+  { slug: 'real-madrid', time: 'Real Madrid' },
+  { slug: 'flamengo', time: 'Flamengo' },
+  { slug: 'vasco-da-gama', time: 'Vasco da Gama' },
+  { slug: 'fluminense', time: 'Fluminense' },
+  { slug: 'palmeiras', time: 'Palmeiras' },
+  { slug: 'chelsea', time: 'Chelsea' },
+  { slug: 'arsenal', time: 'Arsenal' },
 ];
+
+const catalogo = JSON.parse(await fs.readFile(path.join(ROOT, 'public/data/catalog.json'), 'utf8'));
+const capas = JSON.parse(await fs.readFile(path.join(ROOT, 'data/raw/capas.json'), 'utf8'));
+
+/** Nota de cada produto para virar propaganda do clube. Vence, nesta ordem:
+ *  a temporada mais nova, ser camisa de torcedor, ser o uniforme titular e,
+ *  para desempatar, ter mais fotos. */
+function nota(p) {
+  let n = p.y * 1000;
+  if (p.type === 'Torcedor') n += 400;
+  else if (p.type === 'Jogador') n += 300;
+  const nome = (p.n || '').toLowerCase();
+  if (nome.includes('titular')) n += 200;
+  else if (nome.includes('reserva')) n += 60;
+  return n + Math.min(p.ph, 20);
+}
+
+const VITRINE = [];
+for (const c of CLUBES) {
+  const candidatos = catalogo.products.filter((p) => p.team === c.slug && p.ph > 0);
+  if (!candidatos.length) { console.warn(`sem produto com foto: ${c.time}`); continue; }
+  const escolhido = candidatos.reduce((a, b) => (nota(b) > nota(a) ? b : a));
+  VITRINE.push({ id: escolhido.id, time: c.time, slug: c.slug });
+  console.log(`${c.time.padEnd(14)} -> ${escolhido.s.padEnd(6)} ${escolhido.type.padEnd(9)} ${escolhido.n || ''}`);
+}
 
 await fs.mkdir(OUT, { recursive: true });
 const HEADERS = { 'User-Agent': 'Mozilla/5.0', Referer: (process.env.YUPOO_BASE || '') + '/' };
 const prontos = [];
 for (const item of VITRINE) {
-  const lista = JSON.parse(await fs.readFile(path.join(ROOT, 'data', 'raw', 'photos', item.id + '.json'), 'utf8'));
-  if (!lista.length) { console.warn(`sem lista de fotos: ${item.time}`); continue; }
+  const capa = capas[item.id];
+  if (!capa) { console.warn(`sem capa no fornecedor: ${item.time}`); continue; }
   try {
-    // A última foto do álbum é a peça inteira, de frente, e sem marca d'água.
-    const r = await fetch(lista[lista.length - 1], { headers: HEADERS, signal: AbortSignal.timeout(30000) });
+    const r = await fetch(capa, { headers: HEADERS, signal: AbortSignal.timeout(30000) });
     if (!r.ok) throw new Error('HTTP ' + r.status);
     // 9:16: o formato do carrossel. O corte central pega a camisa inteira,
     // que é vertical, e descarta as bordas do fundo de estúdio.
