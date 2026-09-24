@@ -61,7 +61,7 @@ export default function CountryGallery() {
       />
 
       <p className="small mt-2">
-        <span className="hidden md:inline">Passe o mouse para abrir · role de lado para ver os {items.length} países · clique para abrir o país</span>
+        <span className="hidden md:inline">Passe o mouse para abrir · use as setas para ver os {items.length} países · clique para entrar</span>
         <span className="md:hidden">Toque para abrir · deslize para ver os {items.length} países · toque de novo para entrar</span>
       </p>
 

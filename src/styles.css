@@ -175,74 +175,32 @@ select { width: auto; max-width: 100%; }
 }
 @media (prefers-reduced-motion: reduce) { .lb-stage img { transition: none; } }
 
-/* ---- Abertura: marca, globo e carrossel de camisas ---- */
+/* ---- Abertura: a marca e o carrossel de camisas ---- */
 .marca {
   position: relative; overflow: hidden; border-radius: 20px; margin-top: 10px;
-  padding: 26px 16px 30px; color: #fff; isolation: isolate;
+  padding: 30px 16px 18px; color: #fff; isolation: isolate;
   background: radial-gradient(120% 90% at 50% 0%, #0057c8 0%, #00337f 45%, #001a44 100%);
 }
-.marca::before { /* brilho suave atrás do globo */
+.marca::before { /* brilho suave atrás do carrossel */
   content: ""; position: absolute; inset: 0; z-index: -1;
-  background: radial-gradient(45% 40% at 50% 62%, rgba(77,150,255,.28), transparent 70%);
+  background: radial-gradient(45% 45% at 50% 70%, rgba(77,150,255,.30), transparent 70%);
 }
-.marca-topo { display: flex; align-items: center; justify-content: center; gap: 14px; }
-.marca-topo img { width: clamp(38px, 6vw, 56px); height: auto; }
-.marca h1 {
-  font: 800 clamp(32px, 6.6vw, 62px)/.95 var(--display); text-transform: uppercase;
-  letter-spacing: .01em; margin: 0;
+.marca-topo { display: flex; align-items: center; justify-content: center; gap: 10px; }
+.marca-topo img { width: clamp(40px, 6.5vw, 74px); height: auto; }
+/* O nome usa o mesmo corpo da logo: o "A" branco e as letras na mesma altura. */
+.marca-letra { font: 800 clamp(40px, 8vw, 86px)/1 var(--display); letter-spacing: .01em; }
+.marca-sports {
+  margin: 2px 0 0; text-align: center; color: #9EC6FF;
+  font: 700 clamp(18px, 3.2vw, 34px)/1 var(--display);
+  letter-spacing: .42em; text-indent: .42em; text-transform: uppercase;
 }
-.marca h1 span { color: #9EC6FF; }
-.marca-lead { margin: 10px auto 0; max-width: 46ch; text-align: center; color: #C6D9F5; font-size: 15px; }
+.marca-lead { margin: 12px auto 0; max-width: 46ch; text-align: center; color: #C6D9F5; font-size: 15px; }
 .marca-numeros { margin: 6px 0 0; text-align: center; color: #9EC6FF; font-size: 13px; letter-spacing: .02em; }
 .marca-numeros strong { color: #fff; font-variant-numeric: tabular-nums; }
+.marca-carrossel { margin-top: 2px; }
+.marca-carrossel p { color: #fff; }
 
-.palco { position: relative; height: clamp(270px, 30vw, 350px); perspective: 1000px; margin-top: 4px; }
-.globo { top: 44%; transform: translateY(-50%); max-width: min(66%, 360px); }
-
-/* A órbita é inclinada: assim a metade de cima do globo fica à vista. */
-.anel { position: absolute; inset: 0; transform-style: preserve-3d;
-  transform: rotateX(12deg); animation: girar-anel 48s linear infinite; }
-.anel:hover, .anel:focus-within { animation-play-state: paused; }
-@keyframes girar-anel {
-  from { transform: rotateX(12deg) rotateY(0deg); }
-  to { transform: rotateX(12deg) rotateY(-360deg); }
-}
-
-.camisa {
-  --tam: clamp(86px, 13vw, 124px);
-  --raio: clamp(190px, 30vw, 330px);
-  position: absolute; top: 50%; left: 50%; width: var(--tam);
-  margin: calc(var(--tam) / -2 + 26px) 0 0 calc(var(--tam) / -2);
-  transform: rotateY(var(--giro)) translateZ(var(--raio));
-  backface-visibility: hidden; text-decoration: none; color: #fff;
-}
-.camisa img {
-  width: 100%; aspect-ratio: 1; object-fit: contain; border-radius: 12px;
-  background: #fff; box-shadow: 0 10px 26px rgba(0,0,0,.45);
-  border: 1px solid rgba(255,255,255,.4); padding: 3px;
-}
-.camisa span {
-  display: block; margin-top: 6px; text-align: center; font-size: 11px; font-weight: 700;
-  letter-spacing: .04em; text-transform: uppercase; text-shadow: 0 1px 6px rgba(0,0,0,.7);
-}
-.camisa:hover img { border-color: #fff; }
-
-@media (prefers-reduced-motion: reduce) {
-  .anel { animation: none; transform-style: flat; display: flex; flex-wrap: wrap;
-    align-items: center; justify-content: center; gap: 10px; padding: 12px; overflow: auto; }
-  .camisa { position: static; margin: 0; transform: none; }
-  .globo { display: none; }
-}
-
-/* No celular o anel é menor: os nomes sairiam uns sobre os outros e as
-   camisas passariam da borda. Fica só a foto, que é o que importa. */
 @media (max-width: 620px) {
-  .palco { height: 250px; }
-  .camisa { --tam: 78px; --raio: 132px; margin-top: calc(var(--tam) / -2 + 10px); }
-  .camisa span { display: none; }
-  /* Metade das camisas: as que ficam sobram em ângulos iguais (45°), porque
-     cada uma está fixada em i × 22,5°. Sem elas, 16 se sobreporiam. */
-  .camisa:nth-child(even) { display: none; }
-  .globo { max-width: 74%; }
-  .marca { padding-bottom: 20px; }
+  .marca { padding: 22px 12px 12px; }
+  .marca-sports { letter-spacing: .3em; text-indent: .3em; }
 }

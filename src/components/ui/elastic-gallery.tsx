@@ -11,7 +11,7 @@ import {
   useCallback, useEffect, useRef, useState,
   type KeyboardEvent, type PointerEvent as ReactPointerEvent, type ReactNode,
 } from 'react';
-import { ArrowUpRight } from 'lucide-react';
+import { ArrowUpRight, ChevronLeft, ChevronRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 export interface ElasticItem {
@@ -84,26 +84,38 @@ function ElasticGallery({
     if (e.currentTarget.matches(':focus-visible')) activate(id);
   };
 
-  // A faixa é mais larga que a tela. A roda do mouse rola na horizontal
-  // enquanto ainda houver faixa para o lado; quando acaba, a página volta a
-  // rolar normalmente (sem prender o scroll do cliente).
+  // A faixa é mais larga que a tela, mas a roda do mouse NÃO a rola: quem
+  // desce a página passando por cima dela continua descendo a página. Andar
+  // de lado é só pelas setas — ou arrastando, no celular.
   const strip = useRef<HTMLDivElement>(null);
-  const wheel = useCallback((e: WheelEvent) => {
+  const [podeVoltar, setPodeVoltar] = useState(false);
+  const [podeAvancar, setPodeAvancar] = useState(false);
+
+  const medirPontas = useCallback(() => {
     const el = strip.current;
-    if (!el || el.scrollWidth <= el.clientWidth) return;
-    if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) return;
-    const fim = e.deltaY > 0 ? el.scrollLeft >= el.scrollWidth - el.clientWidth - 1 : el.scrollLeft <= 0;
-    if (fim) return;
-    e.preventDefault();
-    el.scrollLeft += e.deltaY;
+    if (!el) return;
+    setPodeVoltar(el.scrollLeft > 4);
+    setPodeAvancar(el.scrollLeft < el.scrollWidth - el.clientWidth - 4);
   }, []);
 
   useEffect(() => {
     const el = strip.current;
     if (!el) return;
-    el.addEventListener('wheel', wheel, { passive: false });
-    return () => el.removeEventListener('wheel', wheel);
-  }, [wheel]);
+    medirPontas();
+    el.addEventListener('scroll', medirPontas, { passive: true });
+    const obs = new ResizeObserver(medirPontas);
+    obs.observe(el);
+    return () => {
+      el.removeEventListener('scroll', medirPontas);
+      obs.disconnect();
+    };
+  }, [medirPontas, items.length]);
+
+  const andar = (dir: 1 | -1) => {
+    const el = strip.current;
+    if (!el) return;
+    el.scrollBy({ left: dir * Math.round(el.clientWidth * 0.7), behavior: 'smooth' });
+  };
 
   const keyDown = (e: KeyboardEvent<HTMLButtonElement>, index: number) => {
     const step = e.key === 'ArrowRight' || e.key === 'ArrowDown' ? 1
@@ -116,20 +128,20 @@ function ElasticGallery({
   };
 
   return (
-    <div
-      ref={strip}
-      role="group"
-      aria-label={label}
-      className={cn(
-        // Altura fixa: é o que mantém a animação estável enquanto os painéis abrem.
-        // A faixa rola só na horizontal — assim o dedo do cliente nunca fica preso
-        // nela ao rolar a página no celular.
-        'flex h-[400px] w-full flex-row gap-2 overflow-x-auto overflow-y-hidden',
-        'md:h-[560px] md:gap-3',
-        'snap-x scroll-px-2 md:scroll-px-3 [scrollbar-width:thin]',
-        className,
-      )}
-    >
+    <div className="relative">
+      <div
+        ref={strip}
+        role="group"
+        aria-label={label}
+        className={cn(
+          // Altura fixa: é o que mantém a animação estável enquanto os painéis
+          // abrem. Rola só na horizontal, e só pelas setas ou pelo arrasto.
+          'flex h-[260px] w-full flex-row gap-2 overflow-x-auto overflow-y-hidden',
+          'md:h-[340px] md:gap-3',
+          'snap-x scroll-px-2 md:scroll-px-3 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden',
+          className,
+        )}
+      >
       {items.map((item, index) => {
         const active = activeId === item.id;
         const broken = failed.has(item.id);
@@ -232,8 +244,37 @@ function ElasticGallery({
               </div>
             </div>
           </button>
-        );
-      })}
+          );
+        })}
+      </div>
+
+      {/* Setas: o único jeito de andar de lado no computador. */}
+      <button
+        type="button"
+        aria-label="Países anteriores"
+        onClick={() => andar(-1)}
+        disabled={!podeVoltar}
+        className={cn(
+          'absolute top-1/2 left-1 z-10 grid size-10 -translate-y-1/2 place-items-center rounded-full',
+          'bg-white/90 text-neutral-900 shadow-lg backdrop-blur transition',
+          'hover:bg-white disabled:pointer-events-none disabled:opacity-0',
+        )}
+      >
+        <ChevronLeft className="size-5" />
+      </button>
+      <button
+        type="button"
+        aria-label="Próximos países"
+        onClick={() => andar(1)}
+        disabled={!podeAvancar}
+        className={cn(
+          'absolute top-1/2 right-1 z-10 grid size-10 -translate-y-1/2 place-items-center rounded-full',
+          'bg-white/90 text-neutral-900 shadow-lg backdrop-blur transition',
+          'hover:bg-white disabled:pointer-events-none disabled:opacity-0',
+        )}
+      >
+        <ChevronRight className="size-5" />
+      </button>
     </div>
   );
 }
