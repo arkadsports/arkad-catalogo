@@ -36,6 +36,8 @@ export interface CoverflowCarouselProps {
   cardWidth?: string;
   /** Espaço entre cartas, em fração da largura. */
   gap?: number;
+  /** Proporção da carta: 1 é quadrada, 16/9 é retrato 9:16. */
+  aspect?: number;
   loop?: boolean;
   showCaption?: boolean;
   showPagination?: boolean;
@@ -57,6 +59,7 @@ export function CoverflowCarousel({
   fade = 0.1,
   cardWidth = 'clamp(148px, 22vw, 260px)',
   gap = 0.05,
+  aspect = 1,
   loop = true,
   showCaption = false,
   showPagination = false,
@@ -285,7 +288,7 @@ export function CoverflowCarousel({
         >
           <div
             className="relative select-none"
-            style={{ height: 'var(--cf-card)', transformStyle: 'preserve-3d' }}
+            style={{ height: `calc(var(--cf-card) * ${aspect})`, transformStyle: 'preserve-3d' }}
           >
             {slides.map((slide, index) => (
               <div
@@ -302,10 +305,10 @@ export function CoverflowCarousel({
                   else goTo(index);
                 }}
                 className={cn(
-                  'bg-muted absolute top-0 left-1/2 aspect-square overflow-hidden rounded-2xl shadow-xl will-change-transform',
+                  'bg-muted absolute top-0 left-1/2 overflow-hidden rounded-2xl shadow-xl will-change-transform',
                   cardClassName,
                 )}
-                style={{ width: 'var(--cf-card)' }}
+                style={{ width: 'var(--cf-card)', height: `calc(var(--cf-card) * ${aspect})` }}
               >
                 <img
                   src={slide.src}

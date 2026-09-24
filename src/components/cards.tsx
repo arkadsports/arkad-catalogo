@@ -25,7 +25,7 @@ export function TeamCard({ team }: { team: Team }) {
     <Link to={`/time/${team.slug}`} className="team-card">
       <div className="team-photo"><Photo id={team.cover} index={team.coverC ?? 0} alt={team.name} has={!!team.cover} /></div>
       <div className="team-info">
-        <strong>{team.flag && <Flag slug={team.countrySlug} emoji={team.flag} />}{team.name}</strong>
+        <strong><Escudo slug={team.slug} />{team.flag && <Flag slug={team.countrySlug} emoji={team.flag} />}{team.name}</strong>
         <span>{total} {total === 1 ? 'modelo' : 'modelos'}</span>
       </div>
     </Link>
@@ -99,5 +99,16 @@ export function Flag({ slug, emoji, className = '', alt }: {
   return (
     <img className={`flag-img ${className}`} src={`/flags/${slug}.webp`}
       alt={alt ?? ''} aria-hidden={!alt} loading="lazy" decoding="async" onError={() => setFailed(true)} />
+  );
+}
+
+// Escudo oficial do clube (public/escudos/<slug>.webp), ao lado do nome.
+// Nem todo time tem: quem não tem simplesmente não mostra nada.
+export function Escudo({ slug, className = '' }: { slug: string; className?: string }) {
+  const [failed, setFailed] = useState(false);
+  if (failed) return null;
+  return (
+    <img className={`escudo ${className}`} src={`/escudos/${slug}.webp`} alt=""
+      width={28} height={28} loading="lazy" decoding="async" onError={() => setFailed(true)} />
   );
 }

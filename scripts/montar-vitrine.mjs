@@ -16,22 +16,14 @@ const OUT = path.join(ROOT, 'public', 'hero');
 // Os times que mais vendem no Brasil e no mundo. O id é o do produto cuja
 // capa vira a foto do carrossel; conferido com scripts/montar-vitrine.mjs.
 const VITRINE = [
-  { id: '212192317', time: 'Flamengo', slug: 'flamengo' },
-  { id: '190502753', time: 'Real Madrid', slug: 'real-madrid' },
-  { id: '211961791', time: 'Corinthians', slug: 'corinthians' },
   { id: '210879831', time: 'Barcelona', slug: 'barcelona' },
-  { id: '211563080', time: 'Palmeiras', slug: 'palmeiras' },
-  { id: '211961096', time: 'Manchester United', slug: 'manchester-united' },
-  { id: '160609341', time: 'Brasil', slug: 'selecao-brasil' },
-  { id: '206448001', time: 'PSG', slug: 'psg' },
-  { id: '211961632', time: 'São Paulo', slug: 'sao-paulo' },
-  { id: '211959441', time: 'Manchester City', slug: 'manchester-city' },
+  { id: '190502753', time: 'Real Madrid', slug: 'real-madrid' },
+  { id: '212192317', time: 'Flamengo', slug: 'flamengo' },
   { id: '197820668', time: 'Vasco da Gama', slug: 'vasco-da-gama' },
-  { id: '211958340', time: 'Bayern de Munique', slug: 'bayern-de-munique' },
-  { id: '210081062', time: 'Cruzeiro', slug: 'cruzeiro' },
-  { id: '211961043', time: 'Arsenal', slug: 'arsenal' },
   { id: '211961909', time: 'Fluminense', slug: 'fluminense' },
-  { id: '196991347', time: 'Boca Juniors', slug: 'boca-juniors' },
+  { id: '211563080', time: 'Palmeiras', slug: 'palmeiras' },
+  { id: '211959333', time: 'Chelsea', slug: 'chelsea' },
+  { id: '211961043', time: 'Arsenal', slug: 'arsenal' },
 ];
 
 await fs.mkdir(OUT, { recursive: true });
@@ -44,7 +36,9 @@ for (const item of VITRINE) {
     // A última foto do álbum é a peça inteira, de frente, e sem marca d'água.
     const r = await fetch(lista[lista.length - 1], { headers: HEADERS, signal: AbortSignal.timeout(30000) });
     if (!r.ok) throw new Error('HTTP ' + r.status);
-    await sharp(Buffer.from(await r.arrayBuffer())).resize(340, 340, { fit: 'inside' })
+    // 9:16: o formato do carrossel. O corte central pega a camisa inteira,
+    // que é vertical, e descarta as bordas do fundo de estúdio.
+    await sharp(Buffer.from(await r.arrayBuffer())).resize(450, 800, { fit: 'cover', position: 'centre' })
       .webp({ quality: 80 }).toFile(path.join(OUT, `${item.slug}.webp`));
     prontos.push(item);
   } catch (e) {

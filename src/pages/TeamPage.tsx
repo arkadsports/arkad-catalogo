@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { Link, useParams, useSearchParams } from 'react-router-dom';
 import { useCatalog } from '../lib/catalog';
-import { Chips, Loading, ProductGrid } from '../components/cards';
+import { Chips, Escudo, Loading, ProductGrid } from '../components/cards';
 
 export default function TeamPage() {
   const { slug = '' } = useParams();
@@ -42,7 +42,7 @@ export default function TeamPage() {
         {' '}/ {team.name}
       </nav>
       <header className="team-head">
-        <h1 className="page-title">{team.flag ? `${team.flag} ` : ''}{team.name}</h1>
+        <h1 className="page-title"><Escudo slug={team.slug} className="escudo-grande" />{team.name}</h1>
         <p className="lead">
           {team.kind === 'selecao' ? 'Seleção' : team.league || team.country} · {all.length} {all.length === 1 ? 'modelo' : 'modelos'}
         </p>

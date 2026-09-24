@@ -62,7 +62,10 @@ export default function Hero({
         label="Camisas em destaque"
         showCaption
         showNavigation
-        cardWidth="clamp(140px, 20vw, 230px)"
+        cardWidth="clamp(120px, 15vw, 190px)"
+        aspect={16 / 9}
+        rotate={40}
+        depth={0.55}
         onOpen={(slide) => slide.href && navigate(slide.href)}
         className="marca-carrossel"
         cardClassName="bg-white"

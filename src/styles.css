@@ -42,17 +42,18 @@ button { font: inherit; color: inherit; }
 .page { padding-block: 20px 56px; min-height: 70vh; }
 
 /* Cabeçalho */
-.site-header { position: sticky; top: 0; z-index: 20; background: var(--ground); border-bottom: 1px solid var(--line); padding-top: env(safe-area-inset-top, 0px); }
+/* Barra fixa no azul da marca: o nome fica branco, igual ao da abertura. */
+.site-header { position: sticky; top: 0; z-index: 20; background: #06213f; border-bottom: 1px solid rgba(255,255,255,.10); padding-top: env(safe-area-inset-top, 0px); }
 .header-row { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 22px; padding-block: 12px; }
-.logo { display: inline-flex; align-items: center; gap: 9px; color: var(--ink); text-decoration: none; }
+.logo { display: inline-flex; align-items: center; gap: 9px; color: #fff; text-decoration: none; }
 .logo-nome { display: flex; flex-direction: column; line-height: 1; }
-.logo-nome b { font: 800 26px/1 var(--display); letter-spacing: .02em; }
-.logo-nome span { font: 700 11px/1 var(--display); color: var(--brand); letter-spacing: .38em; text-indent: .38em; text-transform: uppercase; margin-top: 2px; }
-.logo img { width: 22px; height: auto; filter: brightness(0) saturate(100%) invert(16%) sepia(84%) saturate(3200%) hue-rotate(207deg) brightness(92%) contrast(101%); }
+.logo-nome b { font: 800 27px/1 var(--display); letter-spacing: .02em; color: #fff; }
+.logo-nome span { font: 700 11px/1 var(--display); color: #7FB2FF; letter-spacing: .38em; text-indent: .38em; text-transform: uppercase; margin-top: 3px; }
+.logo img { width: 26px; height: auto; }
 .logo span { color: var(--brand); }
 .main-nav { display: flex; gap: 16px; }
-.main-nav a { color: var(--muted); text-decoration: none; font-weight: 600; }
-.main-nav a.active, .main-nav a:hover { color: var(--ink); }
+.main-nav a { color: #A8C4E8; text-decoration: none; font-weight: 600; }
+.main-nav a.active, .main-nav a:hover { color: #fff; }
 .search { flex: 1 1 260px; }
 .search input, .filter-input, select {
   width: 100%; height: 42px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface);
@@ -92,6 +93,13 @@ select { width: auto; max-width: 100%; }
 .country-card span:last-child { color: var(--muted); font-size: 12.5px; }
 .country-card.accent { border-color: var(--brand); }
 .country-card:hover { border-color: var(--brand); }
+
+/* Escudos dos clubes, ao lado do nome */
+.escudo { display: inline-block; width: 22px; height: 22px; object-fit: contain;
+  vertical-align: -.3em; margin-right: .4em; }
+.escudo-grande { width: 46px; height: 46px; vertical-align: -.16em; margin-right: .28em; }
+.team-info strong { display: flex; align-items: center; }
+.team-info .escudo { flex: 0 0 auto; }
 
 /* Times */
 .team-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 12px; }
