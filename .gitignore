@@ -13,3 +13,8 @@ teste-marca.png
 mapa.png
 public/img/
 !public/img/.gitkeep
+# fotos originais do fornecedor, só referência para a IA (npm run vitrine recria)
+data/vitrine/originais/
+# planilhas e PDFs internos (custos e margens): o repositório é público
+*.xlsx
+Tabela_Precificacao.pdf

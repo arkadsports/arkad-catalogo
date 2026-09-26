@@ -1,7 +1,7 @@
 // Peças visuais reaproveitadas em várias páginas.
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { img, money, priceOf, productName, useCatalog, type Product, type Team } from '../lib/catalog';
+import { img, lowestPriceOf, money, priceOf, productName, useCatalog, type Product, type Team } from '../lib/catalog';
 
 // Foto com "Foto em breve" quando ainda não foi baixada ou falhou
 export function Photo({ id, index = 0, size = 'thumb', alt, has = true }: {
@@ -36,6 +36,7 @@ export function ProductCard({ p }: { p: Product }) {
   const { teamBySlug } = useCatalog();
   const team = teamBySlug.get(p.team);
   const price = priceOf(p);
+  const lowest = lowestPriceOf(p);
   return (
     <Link to={`/produto/${p.id}`} className="product-card">
       <div className="product-photo">
@@ -47,6 +48,7 @@ export function ProductCard({ p }: { p: Product }) {
         <strong className="product-name">{productName(p)}</strong>
         <span className="product-team">{team?.name}</span>
         <span className={price ? 'price' : 'price ask'}>{price ? money(price) : 'Consulte o preço'}</span>
+        {lowest && <span className="price-from">ou {money(lowest)} cada no pedido de 5+</span>}
       </div>
     </Link>
   );

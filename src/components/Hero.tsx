@@ -8,6 +8,7 @@ import { useNavigate } from 'react-router-dom';
 import { CoverflowCarousel, type CoverflowSlide } from './ui/coverflow-carousel';
 import { RevealText } from './ui/reveal-text';
 import { VITRINE } from '../vitrine';
+import { Promessas } from './Promessas';
 
 export default function Hero({
   clubes,
@@ -50,12 +51,14 @@ export default function Hero({
       </div>
 
       <p className="marca-lead">
-        Camisas de time do mundo inteiro, sob encomenda e direto do fornecedor.
+        Camisas de time do mundo inteiro. Compra segura, fácil e rápida: escolha, monte o carrinho e feche pelo WhatsApp.
       </p>
       <p className="marca-numeros">
         <strong>{modelos.toLocaleString('pt-BR')}</strong> modelos · <strong>{clubes}</strong>{' '}
         clubes · <strong>{selecoes}</strong> seleções
       </p>
+
+      <Promessas variante="painel" />
 
       <CoverflowCarousel
         slides={slides}

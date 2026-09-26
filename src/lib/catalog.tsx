@@ -1,6 +1,6 @@
 // Carrega public/data/catalog.json uma vez e entrega para todas as páginas.
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
-import { IMAGE_BASE, PRICES, STORE } from '../config';
+import { IMAGE_BASE, PRICE_TIERS, STORE } from '../config';
 
 export type Country = { slug: string; name: string; flag: string; clubs: number; products: number };
 export type Team = {
@@ -60,15 +60,24 @@ export function useCatalog() {
 export const img = (id: string, index: number, size: 'thumb' | 'full') => `${IMAGE_BASE}/${id}/${index}-${size}.webp`;
 
 export const money = (v: number) => v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-export const priceOf = (p: Product) => PRICES[p.type];
+
+// Preço por faixa: o pedido inteiro define a faixa (config.ts, PRICE_TIERS).
+export const TIER_LABELS = ['1 peça', '2 peças', '3 peças', '4 peças', '5 ou mais'] as const;
+/** Faixa de preço (0 a 4) para um pedido com `total` peças. */
+export const tierIndex = (total: number) => Math.min(Math.max(total, 1), 5) - 1;
+export const tiersOf = (p: Product) => PRICE_TIERS[p.type];
+/** Preço de uma peça quando o pedido tem `total` peças. Sem preço = undefined. */
+export const priceOf = (p: Product, total = 1) => PRICE_TIERS[p.type]?.[tierIndex(total)];
+/** O menor preço da peça (pedido de 5 ou mais). */
+export const lowestPriceOf = (p: Product) => PRICE_TIERS[p.type]?.[4];
 
 export const productName = (p: Product) => p.n || p.type;
+export const productTitle = (p: Product, team?: Team) =>
+  [team?.name, p.type, p.s].filter(Boolean).join(' ') + (p.n ? ` (${p.n})` : '');
 
-export function whatsappLink(p: Product, team?: Team, size?: string) {
-  const parts = [`Olá! Quero pedir: ${team?.name ?? ''} ${p.type}${p.s ? ' ' + p.s : ''}${p.n ? ' (' + p.n + ')' : ''}.`, `Código: ${p.id}.`];
-  parts.push(size ? `Tamanho: ${size}.` : 'Tamanho: ');
-  return `https://wa.me/${STORE.whatsapp}?text=${encodeURIComponent(parts.join(' '))}`;
-}
+/** Conversa no WhatsApp da loja, com mensagem pronta se houver. */
+export const whatsappUrl = (text = '') =>
+  `https://wa.me/${STORE.whatsapp}${text ? `?text=${encodeURIComponent(text)}` : ''}`;
 
 export const normalize = (s: string) => s.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
 

@@ -4,8 +4,10 @@
 //
 //   npm run vitrine
 //
-// Usa a CAPA que o fornecedor escolheu para o álbum (data/raw/capas.json):
-// é sempre a peça inteira, de frente, e sem marca d'água.
+// A foto de cada clube é a de VESTIÁRIO (data/vitrine/vestiario/<clube>.png),
+// feita por IA a partir da camisa. Enquanto ela não existe, entra a CAPA que o
+// fornecedor escolheu para o álbum (data/raw/capas.json): a peça inteira, de
+// frente, sem marca d'água.
 //
 // A camisa de cada clube é escolhida na hora — sempre a da temporada mais
 // recente — e não fica escrita no arquivo. Rode de novo depois de cada sync
@@ -56,6 +58,20 @@ for (const c of CLUBES) {
   console.log(`${c.time.padEnd(14)} -> ${escolhido.s.padEnd(6)} ${escolhido.type.padEnd(9)} ${escolhido.n || ''}`);
 }
 
+// Fotos de vestiário: a camisa num vestiário do clube, feita numa ferramenta
+// de IA de imagem a partir da foto original (veja data/vitrine/PROMPT.md).
+//   data/vitrine/originais/<clube>.jpg  -> a foto que você envia para a IA
+//   data/vitrine/vestiario/<clube>.png  -> o resultado que a IA devolveu
+// Quando existe foto de vestiário, ela entra no carrossel; senão, a capa do
+// fornecedor. Se a camisa do clube mudar (temporada nova), gere uma foto nova.
+const ORIGINAIS = path.join(ROOT, 'data', 'vitrine', 'originais');
+const VESTIARIO = path.join(ROOT, 'data', 'vitrine', 'vestiario');
+await fs.mkdir(ORIGINAIS, { recursive: true });
+await fs.mkdir(VESTIARIO, { recursive: true });
+const vestiarios = new Map((await fs.readdir(VESTIARIO))
+  .filter((f) => /\.(png|jpe?g|webp)$/i.test(f))
+  .map((f) => [path.parse(f).name, path.join(VESTIARIO, f)]));
+
 await fs.mkdir(OUT, { recursive: true });
 const HEADERS = { 'User-Agent': 'Mozilla/5.0', Referer: (process.env.YUPOO_BASE || '') + '/' };
 const prontos = [];
@@ -65,14 +81,27 @@ for (const item of VITRINE) {
   try {
     const r = await fetch(capa, { headers: HEADERS, signal: AbortSignal.timeout(30000) });
     if (!r.ok) throw new Error('HTTP ' + r.status);
+    const original = Buffer.from(await r.arrayBuffer());
+    // A foto inteira, sem corte, para servir de referência à IA.
+    await sharp(original).jpeg({ quality: 92 }).toFile(path.join(ORIGINAIS, `${item.slug}.jpg`));
+
+    const vestiario = vestiarios.get(item.slug);
     // 9:16: o formato do carrossel. O corte central pega a camisa inteira,
     // que é vertical, e descarta as bordas do fundo de estúdio.
-    await sharp(Buffer.from(await r.arrayBuffer())).resize(450, 800, { fit: 'cover', position: 'centre' })
-      .webp({ quality: 80 }).toFile(path.join(OUT, `${item.slug}.webp`));
+    await sharp(vestiario ?? original).resize(540, 960, { fit: 'cover', position: 'centre' })
+      .webp({ quality: 82 }).toFile(path.join(OUT, `${item.slug}.webp`));
     prontos.push(item);
+    console.log(`  ${item.time}: ${vestiario ? 'foto de vestiário' : 'capa do fornecedor (falta a foto de vestiário)'}`);
   } catch (e) {
     console.warn(`falhou ${item.time}: ${e.message}`);
   }
+}
+
+// Sem nenhuma foto (fornecedor fora do ar, .env sem YUPOO_BASE…), a vitrine
+// que já está no site fica como está.
+if (!prontos.length) {
+  console.error('nenhuma foto baixada: src/vitrine.ts não foi alterado');
+  process.exit(1);
 }
 
 await fs.writeFile(

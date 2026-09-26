@@ -14,7 +14,7 @@
     "lint": "oxlint",
     "flags": "node scripts/download-flags.mjs",
     "fotos": "node --env-file-if-exists=.env scripts/fotos-em-lotes.mjs",
-    "vitrine": "node scripts/montar-vitrine.mjs",
+    "vitrine": "node --env-file-if-exists=.env scripts/montar-vitrine.mjs",
     "testar-r2": "node --env-file-if-exists=.env scripts/testar-r2.mjs",
     "marca": "node --env-file-if-exists=.env scripts/marca-dagua.mjs",
     "limpar-marca": "node --env-file-if-exists=.env scripts/limpar-marca.mjs",

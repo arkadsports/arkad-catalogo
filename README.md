@@ -37,17 +37,19 @@ A etapa 2 roda de novo sempre que você baixar fotos novas ou mudar as regras de
 | `scripts/build-catalog.mjs` | Etapa 2: monta `public/data/catalog.json` (países, times, produtos) |
 | `scripts/download-images.mjs` | Etapa 3: baixa as fotos em 2 tamanhos (600 px e 1600 px) |
 | `scripts/download-flags.mjs` | Baixa as bandeiras dos países (`npm run flags`) |
-| `scripts/montar-vitrine.mjs` | Monta as camisas do carrossel da abertura (`npm run vitrine`) |
+| `scripts/montar-vitrine.mjs` | Monta as camisas do carrossel da abertura (`npm run vitrine`); fotos de vestiário em `data/vitrine/` (veja `data/vitrine/PROMPT.md`) |
 | `scripts/fotos-em-lotes.mjs` | Baixa tudo em lotes, subindo para o R2 e apagando o local (`npm run fotos`) |
 | `scripts/testar-r2.mjs` | Confere as chaves do R2 antes de subir (`npm run testar-r2`) |
 | `scripts/upload-r2.mjs` | Envia as fotos para o Cloudflare R2 |
 | `scripts/lib/classify.mjs` | **Regras**: país de cada liga, apelidos dos times, seleções, tipos, tradução dos nomes |
-| `src/config.ts` | **Configurações da loja**: WhatsApp, preços por tipo, prazo |
+| `src/config.ts` | **Configurações da loja**: WhatsApp, prazo, garantias do topo e a tabela de preços por quantidade |
 | `src/pages/` | As páginas: início, clubes, país, seleções, time, produto, busca |
 | `src/components/` | Peças reaproveitadas: cabeçalho, cartões, galeria com zoom |
 | `src/components/ui/` | Componentes de interface no padrão shadcn/ui (Tailwind) |
 | `src/components/CountryGallery.tsx` | A faixa de bandeiras da página inicial |
-| `src/lib/catalog.tsx` | Carrega o catálogo e funções de apoio (preço, link do WhatsApp, busca) |
+| `src/lib/catalog.tsx` | Carrega o catálogo e funções de apoio (preço por faixa, link do WhatsApp, busca) |
+| `src/lib/cart.tsx` | Carrinho (guardado no navegador), resumo com desconto e a mensagem do pedido |
+| `src/pages/CartPage.tsx` | Página do carrinho e fechamento pelo WhatsApp |
 | `src/styles.css` | Visual do site (cores e fontes no topo do arquivo) |
 
 ## Primeira vez: rodar no seu computador
@@ -135,7 +137,8 @@ impresso. A foto da capa é limpa, as de detalhe não. Decisão registrada em
 
 ## Ajustes do dia a dia
 
-- **Preços e WhatsApp:** `src/config.ts`.
+- **Preços e WhatsApp:** `src/config.ts`. Os preços (`PRICE_TIERS`) vêm da aba "Preços do site" da `Tabela de Precificação.xlsx`: um valor para 1, 2, 3, 4 e 5+ peças. A faixa vale para o pedido inteiro, somando todas as peças do carrinho. Tipo sem preço entra no carrinho "a confirmar".
+- **Como a compra funciona:** o cliente adiciona ao carrinho, vê o total com o desconto por quantidade e clica em "Finalizar pelo WhatsApp"; o site abre a conversa com o pedido pronto (peças, tamanhos, códigos, total, nome e cidade). Pagamento e endereço são combinados na conversa.
 - **Produto no time errado:** adicione um apelido em `CLUB_ALIASES` (em `scripts/lib/classify.mjs`) e rode `npm run build-catalog`.
 - **Seleção faltando:** adicione em `NATIONAL_TEAMS` no mesmo arquivo.
 - **Cores e fontes:** topo de `src/styles.css`.
