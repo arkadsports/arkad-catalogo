@@ -2,7 +2,7 @@
 //
 // O nome entra letra a letra e, ao passar o mouse em cada letra, o
 // preenchimento vira a foto de uma camisa — a identidade sai da própria
-// mercadoria. O "A" da logo fica ao lado, no mesmo tamanho das letras.
+// mercadoria. O "A" da logo fica no cabeçalho, no canto esquerdo.
 import { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { CoverflowCarousel, type CoverflowSlide } from './ui/coverflow-carousel';
@@ -37,9 +37,6 @@ export default function Hero({
 
   return (
     <section className="marca">
-      {/* O "A" da logo fica no canto superior direito, como assinatura. */}
-      <img className="marca-selo" src="/logo-a.png" alt="" width={56} height={69} />
-
       <div className="marca-topo">
         <RevealText
           text="ARKAD SPORTS"

@@ -45,10 +45,9 @@ button { font: inherit; color: inherit; }
 /* Barra fixa no azul da marca: o nome fica branco, igual ao da abertura. */
 .site-header { position: sticky; top: 0; z-index: 20; background: #06213f; border-bottom: 1px solid rgba(255,255,255,.10); padding-top: env(safe-area-inset-top, 0px); }
 .header-row { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 22px; padding-block: 12px; }
-/* Logo: o nome por extenso, numa linha só. */
-.logo { color: #fff; text-decoration: none; white-space: nowrap; font: 800 26px/1 var(--display); letter-spacing: .03em; }
-.logo b { font-weight: 800; }
-.logo span { color: #7FB2FF; font-weight: 700; }
+/* Logo: só o "A" da marca; o nome por extenso fica na abertura. */
+.logo { display: inline-flex; align-items: center; text-decoration: none; }
+.logo img { width: 30px; height: auto; }
 .main-nav { display: flex; gap: 16px; }
 .main-nav a { color: #A8C4E8; text-decoration: none; font-weight: 600; }
 .main-nav a.active, .main-nav a:hover { color: #fff; }
@@ -195,8 +194,6 @@ select { width: auto; max-width: 100%; }
   background: radial-gradient(45% 45% at 50% 70%, rgba(77,150,255,.30), transparent 70%);
 }
 .marca-topo { display: flex; align-items: center; justify-content: center; }
-/* O "A" da logo assina o canto, sem competir com o nome. */
-.marca-selo { position: absolute; top: 16px; right: 18px; width: clamp(34px, 4.6vw, 58px); height: auto; opacity: .92; }
 /* O nome usa o mesmo corpo da logo: o "A" branco e as letras na mesma altura. */
 .marca-letra { font: 800 clamp(30px, 6.4vw, 78px)/1 var(--display); letter-spacing: .01em; }
 .marca-lead { margin: 12px auto 0; max-width: 46ch; text-align: center; color: #C6D9F5; font-size: 15px; }
@@ -248,6 +245,9 @@ select { width: auto; max-width: 100%; }
   .cart-label { display: none; }
   .header-row { position: relative; }
   .cart-link { position: absolute; top: 8px; right: 12px; }
+  /* A logo é só o "A": a busca desce para uma linha própria, sem passar por baixo do carrinho. */
+  .search { flex-basis: 100%; order: 3; }
+  .main-nav { order: 4; }
   .cart-badge { position: absolute; top: 0; left: 14px; }
   .marca .promessas-painel small { display: none; }
   .marca .promessas-painel li { align-items: center; }

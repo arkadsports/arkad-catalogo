@@ -27,7 +27,8 @@ export default function Layout() {
       <header className="site-header">
         <div className="wrap header-row">
           <Link to="/" className="logo" aria-label={`${STORE.name} — início`}>
-            <b>ARKAD</b> <span>SPORTS</span>
+            {/* Só o "A" da marca: o nome por extenso fica na abertura. */}
+            <img src="/logo-a.png" alt="" width={30} height={37} />
           </Link>
           <nav className="main-nav" aria-label="Principal">
             <NavLink to="/clubes">Clubes</NavLink>
