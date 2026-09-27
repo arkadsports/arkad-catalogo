@@ -1,11 +1,11 @@
 import { useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { Minus, Plus } from 'lucide-react';
-import { money, priceOf, productName, sizeList, tierIndex, tiersOf, TIER_LABELS, useCatalog } from '../lib/catalog';
+import { isBigSize, money, priceKey, priceOf, productName, sizeList, tierIndex, tiersOf, TIER_LABELS, useCatalog } from '../lib/catalog';
 import { useCart } from '../lib/cart';
 import { Loading, ProductCard } from '../components/cards';
 import Gallery from '../components/Gallery';
-import { STORE } from '../config';
+import { AVISO_PERSONALIZACAO, AVISO_TAMANHO_GRANDE, STORE } from '../config';
 
 // A chave zera tamanho e quantidade ao trocar de produto pelos "relacionados".
 export default function ProductPage() {
@@ -58,7 +58,7 @@ function Produto({ id }: { id: string }) {
               <p className="detail-price">{money(unit!)}<small> por peça</small></p>
               {count > 0 && (
                 <p className="detail-apartir">
-                  Preço somando as {count} {count === 1 ? 'peça' : 'peças'} do seu carrinho ({money(tiers[0])} numa compra avulsa).
+                  Preço somando {count === 1 ? 'a peça' : `as ${count} peças`} do seu carrinho ({money(tiers[0])} numa compra avulsa).
                 </p>
               )}
               <p className="detail-apartir">
@@ -77,9 +77,17 @@ function Produto({ id }: { id: string }) {
               <div className="size-row">
                 {sizes.map((s) => (
                   <button key={s} type="button" className="size" aria-pressed={size === s}
-                    onClick={() => { setSize(s === size ? '' : s); setFaltaTamanho(false); }}>{s}</button>
+                    title={isBigSize(s) ? 'Tamanho grande: pode ter valor adicional' : undefined}
+                    onClick={() => { setSize(s === size ? '' : s); setFaltaTamanho(false); }}>
+                    {s}{isBigSize(s) && <sup aria-label="pode ter adicional">+</sup>}
+                  </button>
                 ))}
               </div>
+              {sizes.some(isBigSize) && (
+                <p className={isBigSize(size) ? 'aviso-tamanho ativo' : 'aviso-tamanho'} role={isBigSize(size) ? 'status' : undefined}>
+                  <b>+</b> {AVISO_TAMANHO_GRANDE}
+                </p>
+              )}
             </fieldset>
           ) : (
             <label className="size-livre">
@@ -116,12 +124,13 @@ function Produto({ id }: { id: string }) {
 
           <dl className="specs">
             <div><dt>Código</dt><dd>{p.id}</dd></div>
-            <div><dt>Versão</dt><dd>{p.type}</dd></div>
+            <div><dt>Versão</dt><dd>{priceKey(p)}</dd></div>
             {p.s && <div><dt>Temporada</dt><dd>{p.s}</dd></div>}
             {p.sz && <div><dt>Tamanhos</dt><dd>{p.sz}</dd></div>}
             <div><dt>Prazo</dt><dd>{STORE.leadTime}</dd></div>
             <div><dt>Frete</dt><dd>Grátis para todo o Brasil</dd></div>
           </dl>
+          <p className="small">{AVISO_PERSONALIZACAO} Você informa o nome e o número no carrinho.</p>
           <p className="small">Descrição original: {p.t}</p>
         </section>
       </div>

@@ -1,6 +1,6 @@
 // Carrega public/data/catalog.json uma vez e entrega para todas as páginas.
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
-import { IMAGE_BASE, PRICE_TIERS, STORE } from '../config';
+import { IMAGE_BASE, PRICE_TIERS, STORE, TAMANHOS_GRANDES } from '../config';
 
 export type Country = { slug: string; name: string; flag: string; clubs: number; products: number };
 export type Team = {
@@ -65,11 +65,21 @@ export const money = (v: number) => v.toLocaleString('pt-BR', { style: 'currency
 export const TIER_LABELS = ['1 peça', '2 peças', '3 peças', '4 peças', '5 ou mais'] as const;
 /** Faixa de preço (0 a 4) para um pedido com `total` peças. */
 export const tierIndex = (total: number) => Math.min(Math.max(total, 1), 5) - 1;
-export const tiersOf = (p: Product) => PRICE_TIERS[p.type];
+/** Linha da tabela de preços que vale para o produto. Quase sempre é o próprio
+ *  tipo; o goleiro se divide pelo título do álbum, e o detalhe mais caro vence:
+ *  versão jogador, infantil, manga longa, senão goleiro torcedor. */
+export function priceKey(p: Product) {
+  if (p.type !== 'Goleiro') return p.type;
+  if (/player/i.test(p.t)) return 'Goleiro jogador';
+  if (/\bkids?\b|children/i.test(p.t)) return 'Infantil';
+  if (/long.?sleeve/i.test(p.t)) return 'Manga longa';
+  return 'Goleiro torcedor';
+}
+export const tiersOf = (p: Product) => PRICE_TIERS[priceKey(p)];
 /** Preço de uma peça quando o pedido tem `total` peças. Sem preço = undefined. */
-export const priceOf = (p: Product, total = 1) => PRICE_TIERS[p.type]?.[tierIndex(total)];
+export const priceOf = (p: Product, total = 1) => tiersOf(p)?.[tierIndex(total)];
 /** O menor preço da peça (pedido de 5 ou mais). */
-export const lowestPriceOf = (p: Product) => PRICE_TIERS[p.type]?.[4];
+export const lowestPriceOf = (p: Product) => tiersOf(p)?.[4];
 
 export const productName = (p: Product) => p.n || p.type;
 export const productTitle = (p: Product, team?: Team) =>
@@ -93,7 +103,9 @@ export function searchProducts(products: Product[], teamBySlug: Map<string, Team
 }
 
 // Tamanhos individuais a partir de "S–4XL"
-const ORDER = ['XS', 'S', 'M', 'L', 'XL', 'XXL', '3XL', '4XL', '5XL'];
+const ORDER = ['XS', 'S', 'M', 'L', 'XL', 'XXL', '3XL', '4XL', '5XL', '6XL', '7XL'];
+/** Tamanho que pode ter acréscimo do fornecedor (config.ts, TAMANHOS_GRANDES). */
+export const isBigSize = (size: string) => TAMANHOS_GRANDES.includes(size.trim().toUpperCase());
 export function sizeList(range: string) {
   if (!range) return [];
   const [a, b] = range.replace('XXXXL', '4XL').replace('XXXL', '3XL').replace('2XL', 'XXL').split('–');

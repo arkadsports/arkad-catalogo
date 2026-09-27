@@ -1,5 +1,6 @@
 {
   "rewrites": [
-    { "source": "/((?!data/|img/|flags/|assets/|favicon).*)", "destination": "/index.html" }
+    { "source": "/foto/:path*", "destination": "https://pub-5d730db9d93247579dd905474ae50aba.r2.dev/:path*" },
+    { "source": "/((?!data/|img/|flags/|assets/|foto/|favicon).*)", "destination": "/index.html" }
   ]
 }

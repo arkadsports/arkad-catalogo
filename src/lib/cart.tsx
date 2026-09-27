@@ -4,9 +4,10 @@
 // O preço de cada peça depende do TOTAL de peças do pedido (config.ts,
 // PRICE_TIERS): colocar mais uma peça pode baratear todas as outras.
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
-import { money, priceOf, productTitle, tierIndex, useCatalog, whatsappUrl, type Product, type Team } from './catalog';
+import { isBigSize, money, priceOf, productTitle, tierIndex, useCatalog, whatsappUrl, type Product, type Team } from './catalog';
 
-export type CartItem = { id: string; size: string; qty: number };
+/** `pers`: personalização pedida pelo cliente (nome e número), se houver. */
+export type CartItem = { id: string; size: string; qty: number; pers?: string };
 const KEY = 'arkad-carrinho';
 const MAX_QTY = 20;
 
@@ -15,6 +16,7 @@ type CartCtx = {
   count: number;
   add: (id: string, size: string, qty?: number) => void;
   setQty: (id: string, size: string, qty: number) => void;
+  setPers: (id: string, size: string, pers: string) => void;
   remove: (id: string, size: string) => void;
   clear: () => void;
   /** Último item adicionado, para o aviso "adicionado ao carrinho". */
@@ -59,16 +61,21 @@ export function CartProvider({ children }: { children: ReactNode }) {
       : list.map((i) => (same(i, id, size) ? { ...i, qty: Math.min(qty, MAX_QTY) } : i))));
   }, []);
 
+  const setPers = useCallback((id: string, size: string, pers: string) => {
+    setItems((list) => list.map((i) => (same(i, id, size) ? { ...i, pers } : i)));
+  }, []);
+
   const value = useMemo<CartCtx>(() => ({
     items,
     count: items.reduce((n, i) => n + i.qty, 0),
     add,
     setQty,
+    setPers,
     remove: (id, size) => setQty(id, size, 0),
     clear: () => setItems([]),
     last,
     dismiss: () => setLast(null),
-  }), [items, add, setQty, last]);
+  }), [items, add, setQty, setPers, last]);
 
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 }
@@ -86,6 +93,8 @@ export type CartLine = CartItem & {
   /** Preço da peça se fosse comprada sozinha — base da economia. */
   single?: number;
   total?: number;
+  /** Tamanho que pode ter acréscimo do fornecedor. */
+  big: boolean;
 };
 
 /** O carrinho já com preços: linhas, subtotal, economia e a próxima faixa. */
@@ -100,7 +109,10 @@ export function useCartSummary() {
       if (!product) continue; // produto saiu do catálogo
       const unit = priceOf(product, count);
       const single = priceOf(product, 1);
-      lines.push({ ...i, product, team: teamBySlug.get(product.team), unit, single, total: unit === undefined ? undefined : unit * i.qty });
+      lines.push({
+        ...i, product, team: teamBySlug.get(product.team), unit, single,
+        total: unit === undefined ? undefined : unit * i.qty, big: isBigSize(i.size),
+      });
     }
     const priced = lines.filter((l) => l.unit !== undefined);
     const subtotal = priced.reduce((s, l) => s + l.total!, 0);
@@ -114,18 +126,40 @@ export function useCartSummary() {
       if (saving > 0) next = { missing: 1, saving };
     }
 
-    return { lines, count, tier: tierIndex(count), subtotal, saving: full - subtotal, pending, next };
+    return {
+      lines, count, tier: tierIndex(count), subtotal, saving: full - subtotal, pending, next,
+      bigSizes: lines.some((l) => l.big),
+      personalized: lines.some((l) => l.pers?.trim()),
+    };
   }, [items, count, productById, teamBySlug]);
 }
+export type CartSummary = ReturnType<typeof useCartSummary>;
+
+// ---------- Dados de entrega ----------
+export type Entrega = {
+  nome: string; rua: string; cep: string; bairro: string; cidade: string;
+  estado: string; pais: string; cpf: string; contato: string; email: string;
+};
+export const ENTREGA_VAZIA: Entrega = {
+  nome: '', rua: '', cep: '', bairro: '', cidade: '', estado: '', pais: 'Brasil', cpf: '', contato: '', email: '',
+};
+/** Os campos na ordem em que aparecem na mensagem e na imagem. */
+export const CAMPOS_ENTREGA: [keyof Entrega, string][] = [
+  ['nome', 'Nome completo'], ['rua', 'Rua e número'], ['cep', 'CEP'], ['bairro', 'Bairro'],
+  ['cidade', 'Cidade'], ['estado', 'Estado'], ['pais', 'País'], ['cpf', 'CPF'],
+  ['contato', 'Contato'], ['email', 'E-mail'],
+];
+
+/** Texto do tamanho, com o aviso de acréscimo quando é tamanho grande. */
+export const sizeText = (l: CartLine) =>
+  (l.size || 'a combinar') + (l.big ? ' (tamanho grande: acréscimo a confirmar)' : '');
 
 /** A mensagem do pedido que vai pronta para o WhatsApp. */
-export function orderMessage(
-  summary: ReturnType<typeof useCartSummary>,
-  cliente: { nome: string; cidade: string; obs: string },
-) {
+export function orderText(summary: CartSummary, entrega: Entrega) {
   const linhas = summary.lines.map((l, n) => {
     const preco = l.unit === undefined ? 'preço a confirmar' : `${l.qty} × ${money(l.unit)} = ${money(l.total!)}`;
-    return `${n + 1}. ${productTitle(l.product, l.team)}\n   Tamanho: ${l.size || 'a combinar'} · ${preco}\n   Código: ${l.product.id}`;
+    const pers = l.pers?.trim() ? `\n   Personalização: ${l.pers.trim()}` : '';
+    return `${n + 1}. ${productTitle(l.product, l.team)}\n   Tamanho: ${sizeText(l)} · ${preco}${pers}\n   Código: ${l.product.id}`;
   });
   const partes = [
     'Olá! Quero fazer este pedido pelo catálogo da Arkad Sports:',
@@ -137,10 +171,11 @@ export function orderMessage(
     summary.saving > 0 ? `Desconto por quantidade: ${money(summary.saving)}` : null,
     'Frete grátis · imposto de importação incluso',
     '',
-    cliente.nome.trim() ? `Nome: ${cliente.nome.trim()}` : null,
-    cliente.cidade.trim() ? `Cidade/UF: ${cliente.cidade.trim()}` : null,
-    cliente.obs.trim() ? `Observações: ${cliente.obs.trim()}` : null,
+    '*Dados para entrega*',
+    ...CAMPOS_ENTREGA.map(([k, rotulo]) => `${rotulo}: ${entrega[k].trim()}`),
   ];
-  // null = campo não preenchido, some da mensagem.
-  return whatsappUrl(partes.filter((p) => p !== null).join('\n').trim());
+  // null = linha que não se aplica a este pedido.
+  return partes.filter((p) => p !== null).join('\n').trim();
 }
+
+export const orderLink = (summary: CartSummary, entrega: Entrega) => whatsappUrl(orderText(summary, entrega));

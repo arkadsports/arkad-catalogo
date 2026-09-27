@@ -344,3 +344,49 @@ button.order { border: 0; cursor: pointer; width: 100%; }
   .cart-line { grid-template-columns: 76px minmax(0, 1fr); }
   .cart-price { grid-column: 2; flex-direction: row; flex-wrap: wrap; align-items: baseline; gap: 4px 8px; text-align: left; }
 }
+
+/* ---- Tamanho grande e personalização ---- */
+.size sup { color: #B45309; font-weight: 800; margin-left: 1px; }
+.size[aria-pressed="true"] sup { color: #FFE2A8; }
+.aviso-tamanho { margin: 8px 0 0; font-size: 12.5px; color: var(--muted); line-height: 1.45; }
+.aviso-tamanho b { color: #B45309; }
+.aviso-tamanho.ativo { background: #FFF6E5; color: #6B4304; border: 1px solid #F5D08A; border-radius: 10px; padding: 9px 12px; }
+.cart-grande { font-size: 12.5px; color: #8A5300; }
+.cart-grande b { color: #B45309; }
+.personalizar { margin-top: 6px; font-size: 13px; }
+.personalizar summary { cursor: pointer; color: var(--brand); font-weight: 600; width: fit-content; }
+.personalizar input { width: 100%; max-width: 360px; margin-top: 6px; border: 1px solid var(--line); border-radius: 8px;
+  background: var(--surface); color: var(--ink); font: inherit; padding: 8px 10px; }
+.personalizar small { display: block; color: var(--muted); margin-top: 4px; }
+@media (prefers-color-scheme: dark) {
+  .aviso-tamanho.ativo { background: #3A2A0A; color: #FCE3B0; border-color: #6B4B12; }
+  .cart-grande { color: #F5C26B; }
+}
+
+/* ---- Dados para entrega ---- */
+.carrinho-principal { display: flex; flex-direction: column; gap: 22px; min-width: 0; }
+.entrega { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 16px; }
+.entrega h2 { font: 700 22px/1 var(--display); text-transform: uppercase; margin: 0 0 4px; }
+.entrega-campos { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px 14px; margin: 12px 0 8px; }
+.entrega-campos label { display: flex; flex-direction: column; gap: 4px; font-size: 13px; font-weight: 600; }
+.entrega-campos label.largo { grid-column: 1 / -1; }
+.entrega-campos input { width: 100%; border: 1px solid var(--line); border-radius: 10px; background: var(--surface);
+  color: var(--ink); font: 400 15px/1.3 var(--body); padding: 10px 12px; }
+.entrega-campos input[aria-invalid="true"] { border-color: #C62828; }
+.entrega-campos .erro { font-size: 12px; font-weight: 500; }
+.resumo .order { margin-top: 12px; }
+button.order:disabled { opacity: .6; cursor: progress; }
+@media (max-width: 520px) { .entrega-campos { grid-template-columns: 1fr; } }
+
+/* ---- Pedido pronto (janela) ---- */
+.pedido-pronto { width: min(560px, calc(100vw - 24px)); max-height: calc(100dvh - 24px); border: 0; border-radius: 16px;
+  padding: 18px; background: var(--surface); color: var(--ink); box-shadow: 0 20px 60px rgba(0,0,0,.35); }
+.pedido-pronto::backdrop { background: rgba(4, 12, 24, .6); }
+.pp-cabeca { display: flex; align-items: center; justify-content: space-between; }
+.pp-cabeca h2 { font: 800 26px/1 var(--display); text-transform: uppercase; margin: 0; }
+.pp-cabeca button { border: 0; background: var(--chip); width: 38px; height: 38px; border-radius: 50%; font-size: 24px; line-height: 1; cursor: pointer; }
+.pp-passos { list-style: none; margin: 12px 0 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.pp-passos .order { gap: 8px; margin: 0; }
+.pp-aviso { margin: 10px 0 0; background: var(--chip); border-radius: 10px; padding: 9px 12px; font-size: 13px; }
+.pp-imagem { width: 100%; margin-top: 14px; border: 1px solid var(--line); border-radius: 10px; }
+.pp-baixar { display: inline-flex; align-items: center; gap: 6px; margin-top: 10px; font-size: 13px; font-weight: 600; }

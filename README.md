@@ -137,8 +137,10 @@ impresso. A foto da capa é limpa, as de detalhe não. Decisão registrada em
 
 ## Ajustes do dia a dia
 
-- **Preços e WhatsApp:** `src/config.ts`. Os preços (`PRICE_TIERS`) vêm da aba "Preços do site" da `Tabela de Precificação.xlsx`: um valor para 1, 2, 3, 4 e 5+ peças. A faixa vale para o pedido inteiro, somando todas as peças do carrinho. Tipo sem preço entra no carrinho "a confirmar".
-- **Como a compra funciona:** o cliente adiciona ao carrinho, vê o total com o desconto por quantidade e clica em "Finalizar pelo WhatsApp"; o site abre a conversa com o pedido pronto (peças, tamanhos, códigos, total, nome e cidade). Pagamento e endereço são combinados na conversa.
+- **Preços e WhatsApp:** `src/config.ts`. Os preços (`PRICE_TIERS`) vêm da aba "Preços do site" da `Tabela de Precificação.xlsx`: um valor para 1, 2, 3, 4 e 5+ peças. A faixa vale para o pedido inteiro, somando todas as peças do carrinho. Tipo sem preço entra no carrinho "a confirmar". Goleiro não tem linha própria: vira "Goleiro jogador" (título com "Player"), "Infantil" (Kids), "Manga longa" ou "Goleiro torcedor" — veja `priceKey` em `src/lib/catalog.tsx`.
+- **Tamanho grande e personalização:** do XXL em diante (`TAMANHOS_GRANDES` no `src/config.ts`) o site avisa que pode haver adicional; o valor é confirmado no WhatsApp. A personalização (nome e número) é informada por item no carrinho.
+- **Como a compra funciona:** o cliente monta o carrinho, preenche os dados de entrega (nome completo, rua e número, CEP, bairro, cidade, estado, país, CPF, contato e e-mail; o CEP preenche o endereço pelo ViaCEP) e clica em "Finalizar pedido". O site mostra o pedido pronto em dois passos: (1) a mensagem de texto no WhatsApp e (2) a imagem do pedido, com a foto de frente de cada peça (`src/lib/pedido-imagem.ts`). No celular a imagem vai pelo menu de compartilhar; no computador ela é copiada (Ctrl+V na conversa) e baixada.
+- **Fotos na imagem do pedido:** o R2 não libera CORS, então as fotos passam pelo próprio site em `/foto/...` (repasse no `vercel.json` e no `vite.config.ts`). Se o endereço do bucket mudar, troque nos dois arquivos e no `src/config.ts`.
 - **Produto no time errado:** adicione um apelido em `CLUB_ALIASES` (em `scripts/lib/classify.mjs`) e rode `npm run build-catalog`.
 - **Seleção faltando:** adicione em `NATIONAL_TEAMS` no mesmo arquivo.
 - **Cores e fontes:** topo de `src/styles.css`.

@@ -22,21 +22,34 @@ export const PROMESSAS = [
 // qualquer tipo): o frete do fornecedor é cobrado por pedido e cai com a
 // quantidade, e é isso que o desconto repassa.
 // Tipo sem preço aqui aparece como "Consulte" e entra no carrinho "a confirmar".
-// Fonte: Tabela de Precificação.xlsx (PDF de 26/09/2026, dólar R$ 5,15).
+// Fonte: aba "Preços do site" da Tabela de Precificação.xlsx (27/09/2026).
+// Goleiro não tem preço próprio: vira "Goleiro torcedor" ou "Goleiro jogador"
+// pelo título do álbum (veja priceKey em lib/catalog.tsx).
 export const PRICE_TIERS: Record<string, readonly [number, number, number, number, number]> = {
   Torcedor: [179.9, 169.9, 159.9, 149.9, 139.9],
   Jogador: [189.9, 179.9, 169.9, 159.9, 149.9],
+  'Goleiro torcedor': [179.9, 169.9, 159.9, 149.9, 139.9],
+  'Goleiro jogador': [189.9, 179.9, 169.9, 159.9, 149.9],
   'Retrô': [219.9, 209.9, 199.9, 189.9, 179.9],
   'Edição especial': [219.9, 209.9, 199.9, 189.9, 179.9],
   Infantil: [209.9, 199.9, 189.9, 179.9, 169.9],
   Feminina: [179.9, 169.9, 159.9, 149.9, 139.9],
   Treino: [179.9, 169.9, 159.9, 149.9, 139.9],
+  'Conjunto de treino': [259.9, 249.9, 239.9, 229.9, 219.9],
   Regata: [169.9, 159.9, 139.9, 129.9, 119.9],
   'Manga longa': [189.9, 179.9, 169.9, 159.9, 149.9],
   // Na planilha a faixa de 2 peças está em R$ 159,90, acima da de 1 peça:
   // mantido como está até a planilha ser revista.
   'Bebê': [149.9, 159.9, 139.9, 129.9, 119.9],
 };
+
+// Tamanhos grandes: o fornecedor às vezes cobra a mais por eles. O valor não é
+// fixo, então o site só avisa e o acréscimo é confirmado no WhatsApp.
+export const TAMANHOS_GRANDES = ['XXL', '3XL', '4XL', '5XL', '6XL', '7XL'];
+export const AVISO_TAMANHO_GRANDE =
+  'Tamanhos a partir do XXL podem ter um valor adicional, cobrado pelo fornecedor por causa do tamanho. Se houver, confirmamos o valor com você pelo WhatsApp antes do pagamento.';
+export const AVISO_PERSONALIZACAO =
+  'Personalização com nome e número tem valor adicional, confirmado pelo WhatsApp antes do pagamento.';
 
 // Onde as fotos estão. O padrão é o bucket público do Cloudflare R2, que é
 // endereço público mesmo — não é segredo, e deixá-lo aqui evita ter de
