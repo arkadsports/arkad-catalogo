@@ -153,7 +153,7 @@ O painel de gestão (ERP, repositório `arkadsports/ERP---ARKAD`) é quem manda 
 - **Pedido:** ao clicar em "Finalizar pedido", o carrinho e os dados de entrega vão para `/api/publico/pedidos`. O ERP devolve o número (ex.: ARK-0012), que entra na mensagem do WhatsApp e na imagem do pedido. Se o ERP falhar, o pedido segue pelo WhatsApp sem número.
 - **Visitas:** cada página aberta manda um aviso anônimo para `/api/publico/visitas` (identificador aleatório do navegador, sem dado pessoal). Abra o site com `?interno=1` no navegador da loja para ele não contar; `?interno=0` desfaz.
 
-O ERP só aceita chamadas vindas de `https://arkad-catalogo.vercel.app` e `http://localhost:5173`. Com domínio próprio, cadastre-o na variável `CATALOGO_ORIGINS` do ERP.
+O ERP só aceita chamadas vindas de `https://arkadsports.vercel.app` e `http://localhost:5173`. Com domínio próprio, cadastre-o na variável `CATALOGO_ORIGINS` do ERP.
 
 ## Publicar
 
