@@ -137,13 +137,23 @@ impresso. A foto da capa é limpa, as de detalhe não. Decisão registrada em
 
 ## Ajustes do dia a dia
 
-- **Preços e WhatsApp:** `src/config.ts`. Os preços (`PRICE_TIERS`) vêm da aba "Preços do site" da `Tabela de Precificação.xlsx`: um valor para 1, 2, 3, 4 e 5+ peças. A faixa vale para o pedido inteiro, somando todas as peças do carrinho. Tipo sem preço entra no carrinho "a confirmar". Goleiro não tem linha própria: vira "Goleiro jogador" (título com "Player"), "Infantil" (Kids), "Manga longa" ou "Goleiro torcedor" — veja `priceKey` em `src/lib/catalog.tsx`.
+- **Preços e WhatsApp:** os preços são editados no **ERP** (Tabela de Preços), e o site os lê ao abrir — veja "Integração com o ERP" abaixo. O `PRICE_TIERS` de `src/config.ts` é a reserva, usada se o ERP não responder; ele veio da aba "Preços do site" da `Tabela de Precificação.xlsx`: um valor para 1, 2, 3, 4 e 5+ peças. A faixa vale para o pedido inteiro, somando todas as peças do carrinho. Tipo sem preço entra no carrinho "a confirmar". Goleiro não tem linha própria: vira "Goleiro jogador" (título com "Player"), "Infantil" (Kids), "Manga longa" ou "Goleiro torcedor" — veja `priceKey` em `src/lib/catalog.tsx`.
 - **Tamanho grande e personalização:** do XXL em diante (`TAMANHOS_GRANDES` no `src/config.ts`) o site avisa que pode haver adicional; o valor é confirmado no WhatsApp. A personalização (nome e número) é informada por item no carrinho.
 - **Como a compra funciona:** o cliente monta o carrinho, preenche os dados de entrega (nome completo, rua e número, CEP, bairro, cidade, estado, país, CPF, contato e e-mail; o CEP preenche o endereço pelo ViaCEP) e clica em "Finalizar pedido". O site mostra o pedido pronto em dois passos: (1) a mensagem de texto no WhatsApp e (2) a imagem do pedido, com a foto de frente de cada peça (`src/lib/pedido-imagem.ts`). No celular a imagem vai pelo menu de compartilhar; no computador ela é copiada (Ctrl+V na conversa) e baixada.
 - **Fotos na imagem do pedido:** o R2 não libera CORS, então as fotos passam pelo próprio site em `/foto/...` (repasse no `vercel.json` e no `vite.config.ts`). Se o endereço do bucket mudar, troque nos dois arquivos e no `src/config.ts`.
 - **Produto no time errado:** adicione um apelido em `CLUB_ALIASES` (em `scripts/lib/classify.mjs`) e rode `npm run build-catalog`.
 - **Seleção faltando:** adicione em `NATIONAL_TEAMS` no mesmo arquivo.
 - **Cores e fontes:** topo de `src/styles.css`.
+
+## Integração com o ERP
+
+O painel de gestão (ERP, repositório `arkadsports/ERP---ARKAD`) é quem manda nos preços e quem recebe pedidos e visitas. O endereço dele (https://erp-arkad-sports.vercel.app) fica em `ERP_URL`, no `src/config.ts`; a variável `VITE_ERP_URL` o substitui, e `VITE_ERP_URL=` vazia **desliga a integração** (o site funciona como antes). Código em `src/lib/erp.ts`.
+
+- **Preços:** ao abrir, o site busca `/api/publico/precos` junto com o catálogo. Se o ERP não responder em 2,5 s, usa o `PRICE_TIERS`.
+- **Pedido:** ao clicar em "Finalizar pedido", o carrinho e os dados de entrega vão para `/api/publico/pedidos`. O ERP devolve o número (ex.: ARK-0012), que entra na mensagem do WhatsApp e na imagem do pedido. Se o ERP falhar, o pedido segue pelo WhatsApp sem número.
+- **Visitas:** cada página aberta manda um aviso anônimo para `/api/publico/visitas` (identificador aleatório do navegador, sem dado pessoal). Abra o site com `?interno=1` no navegador da loja para ele não contar; `?interno=0` desfaz.
+
+O ERP só aceita chamadas vindas de `https://arkad-catalogo.vercel.app` e `http://localhost:5173`. Com domínio próprio, cadastre-o na variável `CATALOGO_ORIGINS` do ERP.
 
 ## Publicar
 

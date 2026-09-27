@@ -8,6 +8,14 @@ export const STORE = {
   leadTime: '20 a 30 dias',
 };
 
+// Painel de gestão da loja (ERP). O site lê de lá a tabela de preços e manda
+// para lá o pedido finalizado e as visitas. Vazio = integração desligada: o
+// site usa PRICE_TIERS abaixo e o pedido segue só pelo WhatsApp.
+// Não é segredo: o ERP só aceita chamadas vindas do endereço do catálogo.
+export const ERP_URL = (
+  (import.meta.env.VITE_ERP_URL as string | undefined) ?? 'https://erp-arkad-sports.vercel.app'
+).replace(/\/$/, '');
+
 // As garantias da loja: aparecem no topo de todas as páginas e na abertura.
 export const PROMESSAS = [
   { icone: 'encomenda', titulo: 'Pedido sob encomenda', texto: 'Direto do fornecedor para você' },
@@ -16,7 +24,10 @@ export const PROMESSAS = [
   { icone: 'frete', titulo: 'Frete grátis para todo o Brasil', texto: 'Sem custo extra na entrega' },
 ] as const;
 
-// Preço de venda por tipo de produto (R$), por faixa de quantidade do pedido:
+// Preço de venda por tipo de produto (R$), por faixa de quantidade do pedido.
+// Com o ERP ligado, quem manda é a Tabela de Preços do ERP (cada pasta ligada
+// a uma destas linhas); esta tabela vale como reserva, se o ERP não responder
+// ou não tiver a linha. Formato de cada linha:
 //   [1 peça, 2 peças, 3 peças, 4 peças, 5 ou mais]
 // A faixa vale para o PEDIDO inteiro (soma de todas as peças do carrinho, de
 // qualquer tipo): o frete do fornecedor é cobrado por pedido e cai com a

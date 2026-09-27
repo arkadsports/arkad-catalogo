@@ -49,7 +49,7 @@ function retanguloRedondo(ctx: CanvasRenderingContext2D, x: number, y: number, w
   ctx.roundRect(x, y, w, h, r);
 }
 
-export async function gerarImagemPedido(summary: CartSummary, entrega: Entrega): Promise<Blob> {
+export async function gerarImagemPedido(summary: CartSummary, entrega: Entrega, codigo?: string | null): Promise<Blob> {
   await Promise.all([
     document.fonts.load(`800 40px ${COND}`), document.fonts.load(`700 40px ${COND}`),
     document.fonts.load(`500 20px ${TEXTO}`), document.fonts.load(`600 20px ${TEXTO}`),
@@ -73,7 +73,8 @@ export async function gerarImagemPedido(summary: CartSummary, entrega: Entrega):
     texto('SPORTS', PAD + larguraArkad, 100, `700 72px ${COND}`, '#9EC6FF');
     texto('Pedido pelo catálogo', PAD, 142, `500 24px ${TEXTO}`, '#DCE9FB');
     const data = new Date().toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' });
-    texto('PEDIDO', W - PAD, 90, `800 44px ${COND}`, '#FFFFFF', 'right');
+    // Com o número do ERP, o cabeçalho diz qual pedido é (ex.: ARK-0012).
+    texto(codigo ?? 'PEDIDO', W - PAD, 90, `800 44px ${COND}`, '#FFFFFF', 'right');
     texto(data, W - PAD, 132, `500 24px ${TEXTO}`, '#DCE9FB', 'right');
 
     let y = 180 + 44;

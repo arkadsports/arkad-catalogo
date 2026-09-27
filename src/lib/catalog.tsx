@@ -1,6 +1,18 @@
 // Carrega public/data/catalog.json uma vez e entrega para todas as páginas.
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
 import { IMAGE_BASE, PRICE_TIERS, STORE, TAMANHOS_GRANDES } from '../config';
+import { carregarPrecos, type Faixas } from './erp';
+
+// Tabela de preços em uso. Começa com a do config.ts e, se o ERP responder,
+// recebe a dele antes de o site ficar pronto — por isso o resto do código lê
+// daqui de forma síncrona, sem saber de onde veio. Linha que o ERP manda como
+// null ainda não tem preço ("Consulte"); linha que ele não manda fica com a
+// do config.ts.
+const precos: Record<string, Faixas | undefined> = { ...PRICE_TIERS };
+function aplicarPrecosDoErp(doErp: Record<string, Faixas | null> | null) {
+  if (!doErp) return;
+  for (const [chave, faixas] of Object.entries(doErp)) precos[chave] = faixas ?? undefined;
+}
 
 export type Country = { slug: string; name: string; flag: string; clubs: number; products: number };
 export type Team = {
@@ -27,9 +39,17 @@ export function CatalogProvider({ children }: { children: ReactNode }) {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    fetch('/data/catalog.json')
-      .then((r) => { if (!r.ok) throw new Error(); return r.json(); })
-      .then((c: Catalog) => { setCatalog(c); setReady(true); })
+    // Os preços chegam junto com o catálogo; carregarPrecos desiste em 2,5 s
+    // e nunca falha, então o ERP fora do ar não segura o site.
+    Promise.all([
+      fetch('/data/catalog.json').then((r) => { if (!r.ok) throw new Error(); return r.json(); }),
+      carregarPrecos(),
+    ])
+      .then(([c, doErp]: [Catalog, Awaited<ReturnType<typeof carregarPrecos>>]) => {
+        aplicarPrecosDoErp(doErp);
+        setCatalog(c);
+        setReady(true);
+      })
       .catch(() => setError('Não foi possível carregar o catálogo. Rode "npm run build-catalog" e recarregue a página.'));
   }, []);
 
@@ -61,7 +81,7 @@ export const img = (id: string, index: number, size: 'thumb' | 'full') => `${IMA
 
 export const money = (v: number) => v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
 
-// Preço por faixa: o pedido inteiro define a faixa (config.ts, PRICE_TIERS).
+// Preço por faixa: o pedido inteiro define a faixa (tabela do ERP ou config.ts).
 export const TIER_LABELS = ['1 peça', '2 peças', '3 peças', '4 peças', '5 ou mais'] as const;
 /** Faixa de preço (0 a 4) para um pedido com `total` peças. */
 export const tierIndex = (total: number) => Math.min(Math.max(total, 1), 5) - 1;
@@ -75,7 +95,7 @@ export function priceKey(p: Product) {
   if (/long.?sleeve/i.test(p.t)) return 'Manga longa';
   return 'Goleiro torcedor';
 }
-export const tiersOf = (p: Product) => PRICE_TIERS[priceKey(p)];
+export const tiersOf = (p: Product) => precos[priceKey(p)];
 /** Preço de uma peça quando o pedido tem `total` peças. Sem preço = undefined. */
 export const priceOf = (p: Product, total = 1) => tiersOf(p)?.[tierIndex(total)];
 /** O menor preço da peça (pedido de 5 ou mais). */

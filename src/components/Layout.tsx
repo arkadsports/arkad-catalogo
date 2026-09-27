@@ -3,6 +3,8 @@ import { Link, NavLink, Outlet, useLocation, useNavigate, useSearchParams } from
 import { ShoppingBag } from 'lucide-react';
 import { STORE } from '../config';
 import { useCart } from '../lib/cart';
+import { useCatalog } from '../lib/catalog';
+import { registrarVisita } from '../lib/erp';
 import { Promessas } from './Promessas';
 import { AvisoCarrinho } from './AvisoCarrinho';
 
@@ -12,8 +14,23 @@ export default function Layout() {
   const [q, setQ] = useState(params.get('q') ?? '');
   const { pathname } = useLocation();
   const { count } = useCart();
+  const { ready, productById } = useCatalog();
 
   useEffect(() => { window.scrollTo(0, 0); }, [pathname]);
+
+  // Cada página aberta conta uma visita no ERP. Espera o catálogo carregar
+  // para saber de que time é o produto: a visita à camisa conta para o time.
+  useEffect(() => {
+    if (!ready) return;
+    const produto = pathname.match(/^\/produto\/([^/]+)/)?.[1];
+    const time = pathname.match(/^\/time\/([^/]+)/)?.[1];
+    registrarVisita(pathname, {
+      productRef: produto,
+      teamSlug: time ?? (produto ? productById.get(produto)?.team : undefined),
+    });
+    // productById muda junto com ready; a visita é por página, não por dado.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pathname, ready]);
 
   const submit = (e: FormEvent) => {
     e.preventDefault();

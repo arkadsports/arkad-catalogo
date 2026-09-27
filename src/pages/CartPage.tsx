@@ -7,6 +7,7 @@ import { money, productName, TIER_LABELS, useCatalog } from '../lib/catalog';
 import { CAMPOS_ENTREGA, orderLink, useCart, useCartSummary, type Entrega } from '../lib/cart';
 import { buscarCep, carregarEntrega, mascaraCep, mascaraCpf, mascaraTelefone, salvarEntrega, validarEntrega } from '../lib/entrega';
 import { gerarImagemPedido } from '../lib/pedido-imagem';
+import { enviarPedido } from '../lib/erp';
 import { AVISO_PERSONALIZACAO, AVISO_TAMANHO_GRANDE } from '../config';
 import { Loading, Photo } from '../components/cards';
 import { Promessas } from '../components/Promessas';
@@ -38,6 +39,8 @@ export default function CartPage() {
   const [pronto, setPronto] = useState<{ url: string; arquivo: File } | null>(null);
   const [enviado, setEnviado] = useState({ texto: false, imagem: false });
   const [aviso, setAviso] = useState('');
+  // Número do pedido no ERP; null se o ERP estiver desligado ou não respondeu.
+  const [codigo, setCodigo] = useState<string | null>(null);
   const dialogo = useRef<HTMLDialogElement>(null);
 
   useEffect(() => { if (pronto) dialogo.current?.showModal(); }, [pronto]);
@@ -83,15 +86,19 @@ export default function CartPage() {
     if (primeiro) { document.getElementById(`entrega-${primeiro}`)?.focus(); return; }
     salvarEntrega(entrega);
     setGerando(true);
+    // Primeiro o pedido entra no ERP, para o número dele ir na mensagem e na
+    // imagem. Se o ERP falhar, o pedido segue pelo WhatsApp sem número.
+    const numero = await enviarPedido(summary, entrega);
+    setCodigo(numero);
     try {
-      const blob = await gerarImagemPedido(summary, entrega);
+      const blob = await gerarImagemPedido(summary, entrega, numero);
       const arquivo = new File([blob], `pedido-arkad-sports-${Date.now()}.png`, { type: 'image/png' });
       setEnviado({ texto: false, imagem: false });
       setAviso('');
       setPronto({ url: URL.createObjectURL(blob), arquivo });
     } catch {
       setAviso('Não conseguimos gerar a imagem. Envie o pedido em texto; a imagem pode ser enviada depois.');
-      window.open(orderLink(summary, entrega), '_blank', 'noopener');
+      window.open(orderLink(summary, entrega, numero), '_blank', 'noopener');
     } finally {
       setGerando(false);
     }
@@ -202,7 +209,7 @@ export default function CartPage() {
                 );
               })}
             </div>
-            <p className="small">O CPF é pedido para o desembaraço da importação. Não guardamos seu CPF neste navegador.</p>
+            <p className="small">O CPF é pedido para o desembaraço da importação. Não guardamos seu CPF neste navegador; seus dados vão só para a Arkad Sports, para entregar este pedido.</p>
           </form>
         </div>
 
@@ -250,13 +257,13 @@ export default function CartPage() {
         {pronto && (
           <>
             <div className="pp-cabeca">
-              <h2 id="pedido-pronto-titulo">Pedido pronto</h2>
+              <h2 id="pedido-pronto-titulo">{codigo ? `Pedido ${codigo} pronto` : 'Pedido pronto'}</h2>
               <button type="button" onClick={() => dialogo.current?.close()} aria-label="Fechar">×</button>
             </div>
             <p className="small">Envie os dois para a Arkad Sports: primeiro o texto, depois a imagem.</p>
             <ol className="pp-passos">
               <li>
-                <a className="order whatsapp" href={orderLink(summary, entrega)} target="_blank" rel="noopener"
+                <a className="order whatsapp" href={orderLink(summary, entrega, codigo)} target="_blank" rel="noopener"
                   onClick={() => setEnviado((e) => ({ ...e, texto: true }))}>
                   {enviado.texto ? <Check size={18} aria-hidden="true" /> : <MessageCircle size={18} aria-hidden="true" />}
                   1. Enviar o pedido no WhatsApp

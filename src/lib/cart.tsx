@@ -154,8 +154,9 @@ export const CAMPOS_ENTREGA: [keyof Entrega, string][] = [
 export const sizeText = (l: CartLine) =>
   (l.size || 'a combinar') + (l.big ? ' (tamanho grande: acréscimo a confirmar)' : '');
 
-/** A mensagem do pedido que vai pronta para o WhatsApp. */
-export function orderText(summary: CartSummary, entrega: Entrega) {
+/** A mensagem do pedido que vai pronta para o WhatsApp. `codigo` é o número
+ *  que o ERP deu ao pedido, para a loja achá-lo no painel. */
+export function orderText(summary: CartSummary, entrega: Entrega, codigo?: string | null) {
   const linhas = summary.lines.map((l, n) => {
     const preco = l.unit === undefined ? 'preço a confirmar' : `${l.qty} × ${money(l.unit)} = ${money(l.total!)}`;
     const pers = l.pers?.trim() ? `\n   Personalização: ${l.pers.trim()}` : '';
@@ -163,6 +164,7 @@ export function orderText(summary: CartSummary, entrega: Entrega) {
   });
   const partes = [
     'Olá! Quero fazer este pedido pelo catálogo da Arkad Sports:',
+    codigo ? `*Pedido ${codigo}*` : null,
     '',
     ...linhas,
     '',
@@ -178,4 +180,5 @@ export function orderText(summary: CartSummary, entrega: Entrega) {
   return partes.filter((p) => p !== null).join('\n').trim();
 }
 
-export const orderLink = (summary: CartSummary, entrega: Entrega) => whatsappUrl(orderText(summary, entrega));
+export const orderLink = (summary: CartSummary, entrega: Entrega, codigo?: string | null) =>
+  whatsappUrl(orderText(summary, entrega, codigo));
