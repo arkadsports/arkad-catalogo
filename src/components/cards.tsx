@@ -1,7 +1,7 @@
 // Peças visuais reaproveitadas em várias páginas.
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { img, lowestPriceOf, money, priceOf, productName, useCatalog, type Product, type Team } from '../lib/catalog';
+import { fotosDe, img, lowestPriceOf, money, priceOf, productName, useCatalog, type Product, type Team } from '../lib/catalog';
 
 // Foto com "Foto em breve" quando ainda não foi baixada ou falhou
 export function Photo({ id, index = 0, size = 'thumb', alt, has = true }: {
@@ -41,7 +41,7 @@ export function ProductCard({ p }: { p: Product }) {
     <Link to={`/produto/${p.id}`} className="product-card">
       <div className="product-photo">
         <Photo id={p.id} index={p.c ?? 0} alt={`${team?.name ?? ''} ${p.type} ${p.s}`} has={p.ph > 0} />
-        {p.ph > 1 && <span className="photo-count">{p.ph} fotos</span>}
+        {fotosDe(p).length > 1 && <span className="photo-count">{fotosDe(p).length} fotos</span>}
       </div>
       <div className="product-info">
         <div className="tags"><span className="tag">{p.type}</span>{p.s && <span className="tag ghost">{p.s}</span>}</div>

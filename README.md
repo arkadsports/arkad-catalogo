@@ -39,6 +39,7 @@ A etapa 2 roda de novo sempre que você baixar fotos novas ou mudar as regras de
 | `scripts/download-flags.mjs` | Baixa as bandeiras dos países (`npm run flags`) |
 | `scripts/montar-vitrine.mjs` | Monta as camisas do carrossel da abertura (`npm run vitrine`); fotos de vestiário em `data/vitrine/` (veja `data/vitrine/PROMPT.md`) |
 | `scripts/fotos-em-lotes.mjs` | Baixa tudo em lotes, subindo para o R2 e apagando o local (`npm run fotos`) |
+| `scripts/detectar-marca.mjs` | Mede a marca d'água de cada foto do R2 (`npm run detectar-marca`); a regra fica em `scripts/lib/marca.mjs` |
 | `scripts/testar-r2.mjs` | Confere as chaves do R2 antes de subir (`npm run testar-r2`) |
 | `scripts/upload-r2.mjs` | Envia as fotos para o Cloudflare R2 |
 | `scripts/lib/classify.mjs` | **Regras**: país de cada liga, apelidos dos times, seleções, tipos, tradução dos nomes |
@@ -73,8 +74,13 @@ npm run images -- --team=flamengo    # 3a. teste com um time primeiro
 npm run images -- --covers           # 3b. só a foto de capa de tudo (rápido)
 npm run images                       # 3c. todas as fotos (várias horas, retoma se parar)
 
+npm run detectar-marca               # 4. mede a marca d'água das fotos novas
 npm run build-catalog                # 2 de novo, para o site enxergar as fotos novas
 ```
+
+Para só **acrescentar o que o fornecedor lançou**, sem mexer no resto:
+`npm run sync` (lista só os álbuns novos) → `npm run fotos` (baixa as fotos
+deles e sobe para o R2) → `npm run detectar-marca` → `npm run build-catalog`.
 
 Tamanho estimado com todas as fotos: **5 a 8 GB**. Comece pelos times que você mais vende.
 
@@ -131,9 +137,23 @@ Atenção ao ler o código: o `download-images.mjs` reordena o álbum para
 `[última, 0, 1, ...]`, então o índice do arquivo no R2 não é a posição na
 lista original. A conversão está no `indiceCapa`, dentro do `build-catalog`.
 
-**Marca d'água:** as fotos de detalhe trazem o endereço do fornecedor
-impresso. A foto da capa é limpa, as de detalhe não. Decisão registrada em
-21/09/2026: publicar assim mesmo por ora.
+**Marca d'água:** muitas fotos de detalhe trazem o endereço do fornecedor
+impresso no meio da foto; a capa é sempre limpa. Decisão de 29/09/2026: as
+fotos com marca ficam **fora do site por enquanto** (continuam no R2).
+
+- `npm run detectar-marca` mede cada foto do R2 e grava as notas em
+  `data/marcas.json` (só lê; retoma de onde parou; mede de novo o álbum que
+  ganhou fotos).
+- O `build-catalog` aplica a regra (`scripts/lib/marca.mjs`) e grava no campo
+  `x` de cada produto as fotos escondidas. O site mostra só as outras
+  (`fotosDe` em `src/lib/catalog.tsx`). A capa nunca é escondida.
+- A regra foi conferida a olho numa amostra: deixa passar cerca de 1 em 60
+  fotos com marca (marca fraca por cima de letreiro ou escudo) e esconde uns 8%
+  das fotos limpas (letreiro grande parece texto). Para mudar, ajuste
+  `LIMITE_LUZ` e `LIMITE_COR` e rode o `build-catalog`, sem medir de novo.
+- Para trazer as fotos de volta, apague `data/marcas.json` e rode o
+  `build-catalog`. (Remover a marca das fotos é outro caminho: `npm run
+  limpar-marca`, que só funciona com a marca na posição de costume.)
 
 ## Ajustes do dia a dia
 

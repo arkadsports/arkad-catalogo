@@ -23,6 +23,8 @@ export type Product = {
   id: string; t: string; n: string; team: string; type: string; s: string; y: number; sz: string; ph: number;
   /** Índice da foto que o fornecedor usa como capa — a da peça inteira. */
   c?: number;
+  /** Fotos escondidas por terem a marca d'água do fornecedor (índices). */
+  x?: number[];
 };
 type Catalog = { generatedAt: string; countries: Country[]; teams: Team[]; products: Product[] };
 
@@ -78,6 +80,11 @@ export function useCatalog() {
 
 // ---------- Utilidades ----------
 export const img = (id: string, index: number, size: 'thumb' | 'full') => `${IMAGE_BASE}/${id}/${index}-${size}.webp`;
+/** As fotos que o site mostra (índices dos arquivos), sem as que têm marca d'água. */
+export const fotosDe = (p: Product) => {
+  const fora = new Set(p.x ?? []);
+  return Array.from({ length: p.ph }, (_, i) => i).filter((i) => !fora.has(i));
+};
 
 export const money = (v: number) => v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
 

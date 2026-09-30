@@ -11,10 +11,14 @@ import {
   slugify, norm, LEAGUE_COUNTRY, FLAGS, NATIONAL_TEAMS, CLUB_ALIASES, JUNK_SUBCATEGORIES,
   SUBCATEGORY_RENAME, productType, season, seasonYear, sizes, shortName,
 } from './lib/classify.mjs';
+import { temMarca } from './lib/marca.mjs';
 
 const RAW = path.resolve('data/raw');
 const OUT = path.resolve('public/data');
 const IMAGES_MANIFEST = path.resolve('data/images.json');
+// Notas da marca d'água de cada foto (npm run detectar-marca). Sem o arquivo,
+// nenhuma foto é escondida.
+const MARCAS = path.resolve('data/marcas.json');
 
 const readJson = async (f, fallback) => {
   try { return JSON.parse(await fs.readFile(f, 'utf8')); } catch { return fallback; }
@@ -27,6 +31,17 @@ async function main() {
   if (!categories || !albums) throw new Error('Rode antes: npm run sync (faltam data/raw/categories.json e albums.json)');
   const images = await readJson(IMAGES_MANIFEST, {}); // { albumId: nº de fotos baixadas }
   const capas = await readJson(path.join(RAW, 'capas.json'), {}); // { albumId: url da capa }
+  const marcas = await readJson(MARCAS, {}); // { albumId: [[luz, cor], ...] }
+
+  // Fotos com a marca d'água do fornecedor ficam fora do site por enquanto.
+  // A capa nunca sai: ela é sempre limpa (a regra às vezes confunde letreiro
+  // grande com a marca) e é a foto do cartão.
+  let escondidas = 0;
+  const fotosEscondidas = (id, capa) => {
+    const x = (marcas[id] ?? []).flatMap((nota, i) => (nota && i !== capa && temMarca(nota) ? [i] : []));
+    escondidas += x.length;
+    return x.length ? x : undefined;
+  };
 
   // Qual das fotos do álbum é a capa. O fornecedor escolhe uma — sempre a
   // peça inteira — e é ela que aparece no cartão do site dele. Não tem
@@ -110,6 +125,7 @@ async function main() {
     }
 
     const s = season(title);
+    const c = await indiceCapa(a.id);
     products.push({
       id: a.id,
       t: title,                        // título original do fornecedor
@@ -120,7 +136,8 @@ async function main() {
       y: seasonYear(s),                // ano para ordenar
       sz: sizes(title),
       ph: images[a.id] || 0,           // fotos baixadas (0 = ainda sem imagem)
-      c: await indiceCapa(a.id),       // qual dessas fotos é a capa
+      c,                               // qual dessas fotos é a capa
+      x: fotosEscondidas(a.id, c),     // fotos com marca d'água, fora do site
     });
   }
 
@@ -155,6 +172,10 @@ async function main() {
   const withPhotos = products.filter((p) => p.ph).length;
   console.log(`Catálogo: ${products.length} produtos, ${usedTeams.length} times/seleções, ${catalog.countries.length} países com clubes.`);
   console.log(`Time encontrado pelo título: ${byTitle} | pela subcategoria: ${bySub} | seleção: ${byNation} | sem time: ${other}`);
+  const totalFotos = products.reduce((n, p) => n + p.ph, 0);
+  const medidos = Object.keys(marcas).length;
+  console.log(`Fotos: ${totalFotos} no R2, ${escondidas} escondidas por marca d'água, ${totalFotos - escondidas} no site.`
+    + (medidos ? '' : ' (sem data/marcas.json: rode npm run detectar-marca)'));
   console.log(`Produtos com foto baixada: ${withPhotos}. ${withPhotos < products.length ? 'Para baixar as fotos: npm run images' : ''}`);
 }
 

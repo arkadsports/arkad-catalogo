@@ -129,6 +129,17 @@ async function main() {
   await fs.writeFile(path.join(RAW, 'albums.json'), JSON.stringify(albums));
   console.log(`   ${Object.keys(albums).length} álbuns únicos`);
 
+  // A capa de cada álbum (a foto da peça inteira) vai também para capas.json,
+  // que é onde o build-catalog e a vitrine a procuram. Capa já conhecida fica.
+  const arquivoCapas = path.join(RAW, 'capas.json');
+  const capas = JSON.parse(await fs.readFile(arquivoCapas, 'utf8').catch(() => '{}'));
+  let novasCapas = 0;
+  for (const a of Object.values(albums)) {
+    if (a.cover && !capas[a.id]) { capas[a.id] = a.cover; novasCapas++; }
+  }
+  await fs.writeFile(arquivoCapas, JSON.stringify(capas));
+  if (novasCapas) console.log(`   ${novasCapas} capas novas em capas.json`);
+
   console.log('3/3 Lendo a lista de fotos de cada álbum...');
   const ids = Object.keys(albums).filter((id) => !albums[id].locked);
   const lockedCount = Object.keys(albums).length - ids.length;

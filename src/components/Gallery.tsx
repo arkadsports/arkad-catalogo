@@ -3,15 +3,17 @@ import { useCallback, useEffect, useState } from 'react';
 import { Photo } from './cards';
 import { img } from '../lib/catalog';
 
-export default function Gallery({ id, count, alt, cover = 0 }: { id: string; count: number; alt: string; cover?: number }) {
+// `fotos`: os índices dos arquivos que podem aparecer (sem os com marca d'água).
+export default function Gallery({ id, fotos, alt, cover = 0 }: { id: string; fotos: number[]; alt: string; cover?: number }) {
   // Abre na capa — a foto da peça inteira — e não na primeira do álbum, que
   // no fornecedor costuma ser um detalhe de tecido.
-  const [index, setIndex] = useState(cover);
+  const [pos, setPos] = useState(Math.max(fotos.indexOf(cover), 0));
   const [open, setOpen] = useState(false);
   const [zoom, setZoom] = useState<{ x: number; y: number } | null>(null);
-  const total = Math.max(count, 1);
+  const total = Math.max(fotos.length, 1);
+  const index = fotos[pos] ?? cover; // o arquivo da foto na tela
 
-  const go = useCallback((d: number) => { setZoom(null); setIndex((i) => (i + d + total) % total); }, [total]);
+  const go = useCallback((d: number) => { setZoom(null); setPos((i) => (i + d + total) % total); }, [total]);
 
   useEffect(() => {
     if (!open) return;
@@ -25,20 +27,20 @@ export default function Gallery({ id, count, alt, cover = 0 }: { id: string; cou
     return () => { document.removeEventListener('keydown', onKey); document.body.style.overflow = ''; };
   }, [open, go]);
 
-  if (count === 0) return <div className="gallery-main"><Photo id={id} alt={alt} has={false} /></div>;
+  if (fotos.length === 0) return <div className="gallery-main"><Photo id={id} alt={alt} has={false} /></div>;
 
   return (
     <div className="gallery">
       <button type="button" className="gallery-main" onClick={() => setOpen(true)} aria-label="Abrir foto em tela cheia">
-        <Photo id={id} index={index} size="full" alt={`${alt} — foto ${index + 1} de ${total}`} />
+        <Photo id={id} index={index} size="full" alt={`${alt} — foto ${pos + 1} de ${total}`} />
         <span className="gallery-hint">Toque para ampliar</span>
       </button>
       {total > 1 && (
         <div className="thumbs" role="list">
-          {Array.from({ length: total }, (_, i) => (
-            <button key={i} type="button" role="listitem" className="thumb" aria-current={i === index}
-              aria-label={`Foto ${i + 1}`} onClick={() => setIndex(i)}>
-              <img src={img(id, i, 'thumb')} alt="" loading="lazy" />
+          {fotos.map((arquivo, i) => (
+            <button key={i} type="button" role="listitem" className="thumb" aria-current={i === pos}
+              aria-label={`Foto ${i + 1}`} onClick={() => setPos(i)}>
+              <img src={img(id, arquivo, 'thumb')} alt="" loading="lazy" />
             </button>
           ))}
         </div>
@@ -61,11 +63,11 @@ export default function Gallery({ id, count, alt, cover = 0 }: { id: string; cou
               setZoom({ x: ((e.clientX - r.left) / r.width) * 100, y: ((e.clientY - r.top) / r.height) * 100 });
             }}
           >
-            <img src={img(id, index, 'full')} alt={`${alt} — foto ${index + 1}`}
+            <img src={img(id, index, 'full')} alt={`${alt} — foto ${pos + 1}`}
               style={zoom ? { transform: 'scale(2.2)', transformOrigin: `${zoom.x}% ${zoom.y}%` } : undefined} />
           </div>
           {total > 1 && <button type="button" className="lb-nav next" onClick={() => go(1)} aria-label="Próxima foto">›</button>}
-          <span className="lb-count">{index + 1} / {total} · {zoom ? 'toque para reduzir' : 'toque na foto para dar zoom'}</span>
+          <span className="lb-count">{pos + 1} / {total} · {zoom ? 'toque para reduzir' : 'toque na foto para dar zoom'}</span>
         </div>
       )}
     </div>

@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { Minus, Plus } from 'lucide-react';
-import { isBigSize, money, priceKey, priceOf, productName, sizeList, tierIndex, tiersOf, TIER_LABELS, useCatalog } from '../lib/catalog';
+import { fotosDe, isBigSize, money, priceKey, priceOf, productName, sizeList, tierIndex, tiersOf, TIER_LABELS, useCatalog } from '../lib/catalog';
 import { useCart } from '../lib/cart';
 import { Loading, ProductCard } from '../components/cards';
 import Gallery from '../components/Gallery';
@@ -46,7 +46,7 @@ function Produto({ id }: { id: string }) {
         <Link to="/">Início</Link> / <Link to={`/time/${p.team}`}>{team?.name}</Link> / {productName(p)}
       </nav>
       <div className="product-layout">
-        <Gallery id={p.id} count={p.ph} cover={p.c ?? 0} alt={alt} />
+        <Gallery id={p.id} fotos={fotosDe(p)} cover={p.c ?? 0} alt={alt} />
 
         <section className="product-detail">
           <Link to={`/time/${p.team}`} className="detail-team">{team?.name}</Link>
