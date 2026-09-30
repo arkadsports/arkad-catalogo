@@ -11,7 +11,8 @@ import {
   slugify, norm, LEAGUE_COUNTRY, FLAGS, NATIONAL_TEAMS, CLUB_ALIASES, JUNK_SUBCATEGORIES,
   SUBCATEGORY_RENAME, productType, season, seasonYear, sizes, shortName,
 } from './lib/classify.mjs';
-import { temMarca } from './lib/marca.mjs';
+import { podeMostrar } from './lib/marca.mjs';
+import { indiceCapa as indiceCapaDoAlbum } from './lib/capa.mjs';
 
 const RAW = path.resolve('data/raw');
 const OUT = path.resolve('public/data');
@@ -31,32 +32,22 @@ async function main() {
   if (!categories || !albums) throw new Error('Rode antes: npm run sync (faltam data/raw/categories.json e albums.json)');
   const images = await readJson(IMAGES_MANIFEST, {}); // { albumId: nº de fotos baixadas }
   const capas = await readJson(path.join(RAW, 'capas.json'), {}); // { albumId: url da capa }
-  const marcas = await readJson(MARCAS, {}); // { albumId: [[luz, cor], ...] }
+  const marcas = await readJson(MARCAS, {}); // { albumId: [[luz, cor, fundo], ...] }
 
-  // Fotos com a marca d'água do fornecedor ficam fora do site por enquanto.
-  // A capa nunca sai: ela é sempre limpa (a regra às vezes confunde letreiro
-  // grande com a marca) e é a foto do cartão.
+  // Nenhuma foto com a marca d'água do fornecedor vai para o site. Fica só a
+  // capa (sempre limpa) e as fotos da peça inteira em que o detector não vê
+  // marca — veja podeMostrar em scripts/lib/marca.mjs. Foto sem medida sai.
   let escondidas = 0;
-  const fotosEscondidas = (id, capa) => {
-    const x = (marcas[id] ?? []).flatMap((nota, i) => (nota && i !== capa && temMarca(nota) ? [i] : []));
+  const fotosEscondidas = (id, capa, total) => {
+    const notas = marcas[id] ?? [];
+    const x = [];
+    for (let i = 0; i < total; i++) if (i !== capa && !podeMostrar(notas[i])) x.push(i);
     escondidas += x.length;
     return x.length ? x : undefined;
   };
 
-  // Qual das fotos do álbum é a capa. O fornecedor escolhe uma — sempre a
-  // peça inteira — e é ela que aparece no cartão do site dele. Não tem
-  // posição fixa: é a última em 48% dos álbuns, a primeira em 25%.
-  // O download reordena o álbum para [última, 0, 1, ...], então a posição na
-  // lista original vira outro índice de arquivo.
-  const indiceCapa = async (id) => {
-    const url = capas[id];
-    if (!url) return 0;
-    const urls = await readJson(path.join(RAW, 'photos', id + '.json'), []);
-    const hash = url.split('/')[4];
-    const i = urls.findIndex((u) => u.includes(hash));
-    if (i < 0) return 0;
-    return i === urls.length - 1 ? 0 : i + 1;
-  };
+  // Qual das fotos do álbum é a capa (scripts/lib/capa.mjs).
+  const indiceCapa = (id) => indiceCapaDoAlbum(RAW, capas, id);
 
   const catById = Object.fromEntries(categories.map((c) => [c.id, c]));
 
@@ -137,7 +128,7 @@ async function main() {
       sz: sizes(title),
       ph: images[a.id] || 0,           // fotos baixadas (0 = ainda sem imagem)
       c,                               // qual dessas fotos é a capa
-      x: fotosEscondidas(a.id, c),     // fotos com marca d'água, fora do site
+      x: fotosEscondidas(a.id, c, images[a.id] || 0), // fotos fora do site (marca d'água)
     });
   }
 

@@ -12,18 +12,52 @@
 //        colorido, mesmo quando o brilho quase não muda (cinza sobre vermelho).
 //        Com marca, dá negativo.
 //
-// Conferido a olho em 400 fotos de detalhe e 150 capas (29/09/2026): a regra
-// abaixo deixa passar ~1 em 60 fotos com marca (marca fraca sobre letreiro ou
-// escudo) e esconde ~8% das fotos limpas (letreiros grandes lembram texto).
+// Sozinhas, essas duas notas deixam passar ~5% das fotos com marca: marca
+// fraca, ou de outro tamanho, por cima de letreiro ou escudo. Por isso há uma
+// terceira nota:
+//
+//   fundo: diferença entre a BORDA da foto e a borda da capa do mesmo álbum.
+//          Foto da peça inteira (frente, costas) tem o mesmo fundo de estúdio
+//          da capa: nota baixa. Close de gola, escudo ou tecido tem pano na
+//          borda: nota alta. Nas amostras conferidas a olho (29/09/2026), a
+//          marca só aparece nos closes; a peça inteira vem limpa.
+//
+// Regra do site (podeMostrar): fica a capa e as fotos da peça inteira em que o
+// detector não vê marca. Todo close sai, com ou sem marca.
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import sharp from 'sharp';
 
 export const LIMITE_LUZ = 0.03;
 export const LIMITE_COR = -0.02;
+/** Até aqui a foto conta como peça inteira (closes começam acima de 30). */
+export const LIMITE_FUNDO = 8;
 
-/** A regra: [luz, cor] -> tem marca? */
+/** [luz, cor] -> o detector vê marca? */
 export const temMarca = ([luz, cor]) => Math.abs(luz) >= LIMITE_LUZ || cor <= LIMITE_COR;
+
+/** A foto (que não é a capa) pode aparecer no site? Sem nota = não. */
+export const podeMostrar = (nota) =>
+  Array.isArray(nota) && nota.length >= 3 && !temMarca(nota) && nota[2] <= LIMITE_FUNDO;
+
+// ---------- fundo: borda da foto x borda da capa ----------
+const N = 48, B = 5;
+/** Miniatura 48x48 em RGB, base da comparação de fundo. */
+export const miniatura = async (buf) =>
+  new Uint8Array(await sharp(buf).resize(N, N, { fit: 'fill' }).removeAlpha().raw().toBuffer());
+/** Diferença média de cor na borda (topo e laterais; o chão tem o pedestal). */
+export function diferencaDeFundo(foto, capa) {
+  let soma = 0, q = 0;
+  for (let y = 0; y < N * 0.8; y++) {
+    for (let x = 0; x < N; x++) {
+      if (!(y < B || x < B || x >= N - B)) continue;
+      const k = 3 * (y * N + x);
+      soma += Math.abs(foto[k] - capa[k]) + Math.abs(foto[k + 1] - capa[k + 1]) + Math.abs(foto[k + 2] - capa[k + 2]);
+      q += 3;
+    }
+  }
+  return Math.round((soma / q) * 10) / 10;
+}
 
 const L = 540; // lado de trabalho: meia resolução do mapa (1080)
 const R = 3;   // raio do passa-alta vertical

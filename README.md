@@ -138,22 +138,30 @@ Atenção ao ler o código: o `download-images.mjs` reordena o álbum para
 lista original. A conversão está no `indiceCapa`, dentro do `build-catalog`.
 
 **Marca d'água:** muitas fotos de detalhe trazem o endereço do fornecedor
-impresso no meio da foto; a capa é sempre limpa. Decisão de 29/09/2026: as
-fotos com marca ficam **fora do site por enquanto** (continuam no R2).
+impresso no meio da foto; a capa é sempre limpa. Decisão de 29/09/2026:
+**nenhuma foto com marca vai para o site** (elas continuam no R2).
 
-- `npm run detectar-marca` mede cada foto do R2 e grava as notas em
-  `data/marcas.json` (só lê; retoma de onde parou; mede de novo o álbum que
-  ganhou fotos).
-- O `build-catalog` aplica a regra (`scripts/lib/marca.mjs`) e grava no campo
-  `x` de cada produto as fotos escondidas. O site mostra só as outras
-  (`fotosDe` em `src/lib/catalog.tsx`). A capa nunca é escondida.
-- A regra foi conferida a olho numa amostra: deixa passar cerca de 1 em 60
-  fotos com marca (marca fraca por cima de letreiro ou escudo) e esconde uns 8%
-  das fotos limpas (letreiro grande parece texto). Para mudar, ajuste
-  `LIMITE_LUZ` e `LIMITE_COR` e rode o `build-catalog`, sem medir de novo.
-- Para trazer as fotos de volta, apague `data/marcas.json` e rode o
-  `build-catalog`. (Remover a marca das fotos é outro caminho: `npm run
-  limpar-marca`, que só funciona com a marca na posição de costume.)
+Como parte das marcas é fraca demais para qualquer detector, o site mostra só
+o que é seguro: **a capa e as fotos da peça inteira (frente, costas) em que o
+detector não vê marca**. Todo close (gola, escudo, tecido) sai, com ou sem
+marca — nas amostras conferidas a olho, a marca só aparece nos closes.
+
+- `npm run detectar-marca` mede cada foto do R2 e grava três notas em
+  `data/marcas.json`: brilho e cor na faixa da marca, e o "fundo" — quanto a
+  borda da foto difere da borda da capa (peça inteira tem o mesmo fundo de
+  estúdio da capa; close tem pano na borda). Só lê; retoma de onde parou;
+  mede de novo o álbum que ganhou fotos.
+- O `build-catalog` aplica a regra (`podeMostrar` em `scripts/lib/marca.mjs`)
+  e grava no campo `x` de cada produto as fotos escondidas. O site mostra só as
+  outras (`fotosDe` em `src/lib/catalog.tsx`). Foto ainda não medida fica
+  escondida.
+- Para mudar a regra, ajuste `LIMITE_LUZ`, `LIMITE_COR` e `LIMITE_FUNDO` e
+  rode o `build-catalog`, sem medir de novo.
+- Para trazer todas as fotos de volta, faça `podeMostrar` devolver sempre
+  `true` e rode o `build-catalog`. (Apagar `data/marcas.json` faz o contrário:
+  sem nota, só a capa aparece.) Remover a marca das próprias fotos é outro
+  caminho: `npm run limpar-marca`, que só funciona com a marca na posição de
+  costume.
 
 ## Ajustes do dia a dia
 
