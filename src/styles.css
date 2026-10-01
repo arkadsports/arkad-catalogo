@@ -352,11 +352,6 @@ button.order { border: 0; cursor: pointer; width: 100%; }
 .aviso-tamanho.ativo { background: #FFF6E5; color: #6B4304; border: 1px solid #F5D08A; border-radius: 10px; padding: 9px 12px; }
 .cart-grande { font-size: 12.5px; color: #8A5300; }
 .cart-grande b { color: #B45309; }
-.personalizar { margin-top: 6px; font-size: 13px; }
-.personalizar summary { cursor: pointer; color: var(--brand); font-weight: 600; width: fit-content; }
-.personalizar input { width: 100%; max-width: 360px; margin-top: 6px; border: 1px solid var(--line); border-radius: 8px;
-  background: var(--surface); color: var(--ink); font: inherit; padding: 8px 10px; }
-.personalizar small { display: block; color: var(--muted); margin-top: 4px; }
 @media (prefers-color-scheme: dark) {
   .aviso-tamanho.ativo { background: #3A2A0A; color: #FCE3B0; border-color: #6B4B12; }
   .cart-grande { color: #F5C26B; }
@@ -389,3 +384,17 @@ button.order:disabled { opacity: .6; cursor: progress; }
 .pp-aviso { margin: 10px 0 0; background: var(--chip); border-radius: 10px; padding: 9px 12px; font-size: 13px; }
 .pp-imagem { width: 100%; margin-top: 14px; border: 1px solid var(--line); border-radius: 10px; }
 .pp-baixar { display: inline-flex; align-items: center; gap: 6px; margin-top: 10px; font-size: 13px; font-weight: 600; }
+
+/* ---- Personalização: nome, número e patch ---- */
+.personalizacao { border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; margin: 4px 0 0; background: var(--surface); }
+.personalizacao legend { font-weight: 600; padding: 0 4px; }
+.personalizacao legend small { font-weight: 400; color: var(--muted); }
+.pers-campos { display: grid; grid-template-columns: minmax(0, 1fr) 84px; gap: 10px; }
+.pers-campos label { display: flex; flex-direction: column; gap: 4px; font-size: 13px; font-weight: 600; }
+.pers-campos input { width: 100%; height: 42px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface);
+  color: var(--ink); font: 600 15px/1 var(--body); padding: 0 12px; letter-spacing: .04em; }
+.pers-numero input { text-align: center; }
+.pers-patch { grid-column: 1 / -1; }
+.pers-patch select { width: 100%; }
+.cart-pers { font-size: 13px; color: var(--brand); }
+.cart-pers small { color: var(--muted); }

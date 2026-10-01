@@ -2,10 +2,10 @@ import { useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { Minus, Plus } from 'lucide-react';
 import { fotosDe, isBigSize, money, priceKey, priceOf, productName, sizeList, tierIndex, tiersOf, TIER_LABELS, useCatalog } from '../lib/catalog';
-import { useCart } from '../lib/cart';
+import { useCart, type Personalizacao } from '../lib/cart';
 import { Loading, ProductCard } from '../components/cards';
 import Gallery from '../components/Gallery';
-import { AVISO_PERSONALIZACAO, AVISO_TAMANHO_GRANDE, STORE } from '../config';
+import { AVISO_PERSONALIZACAO, AVISO_TAMANHO_GRANDE, NOME_MAX, PERSONALIZAVEIS, STORE, patchesDoTime } from '../config';
 
 // A chave zera tamanho e quantidade ao trocar de produto pelos "relacionados".
 export default function ProductPage() {
@@ -20,6 +20,7 @@ function Produto({ id }: { id: string }) {
   const [size, setSize] = useState('');
   const [qty, setQty] = useState(1);
   const [faltaTamanho, setFaltaTamanho] = useState(false);
+  const [pers, setPers] = useState<Personalizacao>({});
   if (!ready) return <Loading />;
 
   const p = productById.get(id);
@@ -32,11 +33,16 @@ function Produto({ id }: { id: string }) {
   // A faixa em que este pedido cairia com estas peças somadas ao carrinho.
   const pedido = count + qty;
   const unit = priceOf(p, pedido);
+  // Nome, número e patch: só nas camisas; os patches combinam com o time.
+  const personalizavel = PERSONALIZAVEIS.has(p.type);
+  const patches = team ? patchesDoTime(team) : [];
+  const personalizado = !!(pers.nome?.trim() || pers.numero?.trim() || pers.patch);
 
   const colocar = (depois?: () => void) => {
     if (sizes.length && !size) { setFaltaTamanho(true); return; }
-    add(p.id, size.trim(), qty);
+    add(p.id, size.trim(), qty, personalizavel ? pers : {});
     setQty(1);
+    setPers({});
     depois?.();
   };
 
@@ -96,6 +102,33 @@ function Produto({ id }: { id: string }) {
             </label>
           )}
 
+          {personalizavel && (
+            <fieldset className="personalizacao">
+              <legend>Personalização <small>(opcional)</small></legend>
+              <div className="pers-campos">
+                <label className="pers-nome">Nome
+                  <input type="text" value={pers.nome ?? ''} maxLength={NOME_MAX} autoComplete="off" placeholder="Ex.: GABIGOL"
+                    onChange={(e) => setPers({ ...pers, nome: e.target.value.toUpperCase() })} />
+                </label>
+                <label className="pers-numero">Número
+                  <input type="text" inputMode="numeric" value={pers.numero ?? ''} maxLength={2} autoComplete="off" placeholder="10"
+                    onChange={(e) => setPers({ ...pers, numero: e.target.value.replace(/\D/g, '') })} />
+                </label>
+                {patches.length > 0 && (
+                  <label className="pers-patch">Patch
+                    <select value={pers.patch ?? ''} onChange={(e) => setPers({ ...pers, patch: e.target.value || undefined })}>
+                      <option value="">Sem patch</option>
+                      {patches.map((nome) => <option key={nome} value={nome}>{nome}</option>)}
+                    </select>
+                  </label>
+                )}
+              </div>
+              <p className={personalizado ? 'aviso-tamanho ativo' : 'aviso-tamanho'}>
+                <b>+</b> {AVISO_PERSONALIZACAO}{qty > 1 ? ` Vale para as ${qty} peças; para nomes diferentes, adicione uma de cada vez.` : ''}
+              </p>
+            </fieldset>
+          )}
+
           <div className="comprar">
             <div className="qtd" role="group" aria-label="Quantidade">
               <button type="button" onClick={() => setQty((q) => Math.max(1, q - 1))} disabled={qty <= 1} aria-label="Menos uma"><Minus size={16} /></button>
@@ -130,7 +163,6 @@ function Produto({ id }: { id: string }) {
             <div><dt>Prazo</dt><dd>{STORE.leadTime}</dd></div>
             <div><dt>Frete</dt><dd>Grátis para todo o Brasil</dd></div>
           </dl>
-          <p className="small">{AVISO_PERSONALIZACAO} Você informa o nome e o número no carrinho.</p>
           <p className="small">Descrição original: {p.t}</p>
         </section>
       </div>

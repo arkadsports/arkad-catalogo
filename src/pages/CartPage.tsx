@@ -4,7 +4,7 @@ import { useEffect, useRef, useState, type FormEvent } from 'react';
 import { Link } from 'react-router-dom';
 import { Check, Download, ImageIcon, MessageCircle, Minus, Plus, Trash2 } from 'lucide-react';
 import { money, productName, TIER_LABELS, useCatalog } from '../lib/catalog';
-import { CAMPOS_ENTREGA, orderLink, useCart, useCartSummary, type Entrega } from '../lib/cart';
+import { CAMPOS_ENTREGA, chave, orderLink, persText, useCart, useCartSummary, type Entrega } from '../lib/cart';
 import { buscarCep, carregarEntrega, mascaraCep, mascaraCpf, mascaraTelefone, salvarEntrega, validarEntrega } from '../lib/entrega';
 import { gerarImagemPedido } from '../lib/pedido-imagem';
 import { enviarPedido } from '../lib/erp';
@@ -31,7 +31,7 @@ const ROTULO = Object.fromEntries(CAMPOS_ENTREGA) as Record<keyof Entrega, strin
 
 export default function CartPage() {
   const { ready } = useCatalog();
-  const { setQty, setPers, remove, clear } = useCart();
+  const { setQty, remove, clear } = useCart();
   const summary = useCartSummary();
   const [entrega, setEntrega] = useState<Entrega>(carregarEntrega);
   const [erros, setErros] = useState<Partial<Record<keyof Entrega, string>>>({});
@@ -47,7 +47,7 @@ export default function CartPage() {
   useEffect(() => () => { if (pronto) URL.revokeObjectURL(pronto.url); }, [pronto]);
 
   if (!ready) return <Loading />;
-  const { lines, count, tier, subtotal, saving, pending, next, bigSizes } = summary;
+  const { lines, count, tier, subtotal, saving, pending, next, bigSizes, personalized } = summary;
 
   if (!lines.length) {
     return (
@@ -143,7 +143,7 @@ export default function CartPage() {
           <section aria-label="Peças do pedido">
             <ul className="cart-lines">
               {lines.map((l) => (
-                <li key={`${l.id}|${l.size}`} className="cart-line">
+                <li key={chave(l)} className="cart-line">
                   <Link to={`/produto/${l.id}`} className="cart-photo">
                     <Photo id={l.id} index={l.product.c ?? 0} alt={productName(l.product)} has={l.product.ph > 0} />
                   </Link>
@@ -154,23 +154,19 @@ export default function CartPage() {
                     {l.product.n && <span className="cart-variant">{l.product.n}</span>}
                     <span className="cart-variant">Tamanho: {l.size || 'a combinar'} · Código {l.id}</span>
                     {l.big && <span className="cart-grande"><b>+</b> Tamanho grande: pode ter valor adicional</span>}
+                    {persText(l) && (
+                      <span className="cart-pers"><b>Personalização:</b> {persText(l)} <small>(valor a confirmar)</small></span>
+                    )}
                     <div className="cart-row">
                       <div className="qtd" role="group" aria-label="Quantidade">
-                        <button type="button" onClick={() => setQty(l.id, l.size, l.qty - 1)} aria-label="Menos uma"><Minus size={16} /></button>
+                        <button type="button" onClick={() => setQty(chave(l), l.qty - 1)} aria-label="Menos uma"><Minus size={16} /></button>
                         <output>{l.qty}</output>
-                        <button type="button" onClick={() => setQty(l.id, l.size, l.qty + 1)} aria-label="Mais uma"><Plus size={16} /></button>
+                        <button type="button" onClick={() => setQty(chave(l), l.qty + 1)} aria-label="Mais uma"><Plus size={16} /></button>
                       </div>
-                      <button type="button" className="cart-remove" onClick={() => remove(l.id, l.size)}>
+                      <button type="button" className="cart-remove" onClick={() => remove(chave(l))}>
                         <Trash2 size={16} aria-hidden="true" /> Remover
                       </button>
                     </div>
-                    <details className="personalizar" open={!!l.pers}>
-                      <summary>Personalizar com nome e número</summary>
-                      <input type="text" maxLength={40} value={l.pers ?? ''} aria-label="Personalização"
-                        placeholder={l.qty > 1 ? 'Ex.: GABIGOL 9 e ARRASCAETA 10' : 'Ex.: GABIGOL 9'}
-                        onChange={(e) => setPers(l.id, l.size, e.target.value)} />
-                      <small>Opcional. {AVISO_PERSONALIZACAO}</small>
-                    </details>
                   </div>
                   <div className="cart-price">
                     {l.unit === undefined ? (
@@ -240,6 +236,7 @@ export default function CartPage() {
             <p className="small">+ {pending} {pending === 1 ? 'peça' : 'peças'} com preço a confirmar pelo WhatsApp.</p>
           )}
           {bigSizes && <p className="aviso-tamanho ativo"><b>+</b> {AVISO_TAMANHO_GRANDE}</p>}
+          {personalized && <p className="aviso-tamanho ativo"><b>+</b> {AVISO_PERSONALIZACAO}</p>}
 
           <button type="submit" form="pedido" className="order whatsapp" disabled={gerando}>
             {gerando ? 'Preparando o pedido…' : 'Finalizar pedido'}

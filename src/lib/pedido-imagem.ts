@@ -6,7 +6,7 @@
 // /foto/... (repasse configurado no vercel.json e no vite.config.ts).
 import { IMAGE_BASE, STORE } from '../config';
 import { money, TIER_LABELS } from './catalog';
-import { CAMPOS_ENTREGA, sizeText, type CartSummary, type Entrega } from './cart';
+import { CAMPOS_ENTREGA, persText, sizeText, type CartSummary, type Entrega } from './cart';
 
 const W = 1080;
 const PAD = 56;
@@ -91,9 +91,9 @@ export async function gerarImagemPedido(summary: CartSummary, entrega: Entrega, 
       if (l.product.n) { texto(l.product.n, xTexto, ty, `500 22px ${TEXTO}`, APAGADO); ty += 32; }
       ctx.font = `600 22px ${TEXTO}`;
       for (const linha of quebrar(ctx, `Tamanho: ${sizeText(l)}`, largTexto)) { texto(linha, xTexto, ty, `600 22px ${TEXTO}`, l.big ? '#B45309' : TINTA); ty += 30; }
-      if (l.pers?.trim()) {
+      if (persText(l)) {
         ctx.font = `600 22px ${TEXTO}`;
-        for (const linha of quebrar(ctx, `Personalização: ${l.pers.trim()}`, largTexto)) { texto(linha, xTexto, ty, `600 22px ${TEXTO}`, AZUL); ty += 30; }
+        for (const linha of quebrar(ctx, `Personalização: ${persText(l)}`, largTexto)) { texto(linha, xTexto, ty, `600 22px ${TEXTO}`, AZUL); ty += 30; }
       }
       texto(`Código ${l.product.id}`, xTexto, ty, `500 20px ${TEXTO}`, APAGADO); ty += 38;
       const preco = l.unit === undefined ? 'Preço a confirmar' : `${l.qty} × ${money(l.unit)}`;

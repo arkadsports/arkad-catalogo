@@ -59,7 +59,38 @@ export const TAMANHOS_GRANDES = ['XXL', '3XL', '4XL', '5XL', '6XL', '7XL'];
 export const AVISO_TAMANHO_GRANDE =
   'Tamanhos a partir do XXL podem ter um valor adicional, cobrado pelo fornecedor por causa do tamanho. Se houver, confirmamos o valor com você pelo WhatsApp antes do pagamento.';
 export const AVISO_PERSONALIZACAO =
-  'Personalização com nome e número tem valor adicional, confirmado pelo WhatsApp antes do pagamento.';
+  'Nome, número e patch têm valor adicional, confirmado pelo WhatsApp antes do pagamento.';
+
+// ---------- Personalização ----------
+// Tipos de produto que aceitam nome, número e patch (camisas). Os outros —
+// short, meia, jaqueta, polo, o próprio patch — não mostram o campo.
+export const PERSONALIZAVEIS = new Set([
+  'Torcedor', 'Jogador', 'Retrô', 'Edição especial', 'Infantil', 'Feminina',
+  'Manga longa', 'Goleiro', 'Regata', 'Bebê', 'NFL, NBA e outros',
+]);
+export const NOME_MAX = 14; // letras do nome nas costas
+
+// Patches da lista suspensa. O site mostra só os que combinam com o time:
+// o da liga dele (vem do catálogo), o do torneio continental e o Mundial.
+// Para mudar a lista, edite aqui.
+const AMERICA_DO_SUL = new Set(['brasil', 'argentina', 'uruguai', 'chile', 'colombia', 'paraguai', 'equador', 'peru', 'bolivia', 'venezuela']);
+const EUROPA = new Set([
+  'inglaterra', 'espanha', 'alemanha', 'italia', 'franca', 'portugal', 'holanda', 'escocia', 'turquia',
+  'belgica', 'austria', 'suica', 'grecia', 'dinamarca', 'suecia', 'noruega', 'russia', 'ucrania', 'croacia', 'servia',
+]);
+const AMERICA_DO_NORTE = new Set(['mexico', 'estados-unidos', 'canada', 'honduras', 'costa-rica', 'guatemala', 'panama']);
+export function patchesDoTime(t: { kind: string; countrySlug: string; league: string }): string[] {
+  if (t.kind === 'selecao') return ['Copa do Mundo 2026'];
+  if (t.kind !== 'clube') return [];
+  const lista: string[] = [];
+  if (t.league) lista.push(t.league);
+  if (AMERICA_DO_SUL.has(t.countrySlug)) lista.push('Copa Libertadores', 'Copa Sul-Americana');
+  if (t.countrySlug === 'brasil') lista.push('Copa do Brasil');
+  if (EUROPA.has(t.countrySlug)) lista.push('Champions League', 'Europa League');
+  if (AMERICA_DO_NORTE.has(t.countrySlug)) lista.push('Concacaf Champions Cup');
+  lista.push('Mundial de Clubes');
+  return lista;
+}
 
 // Onde as fotos estão. O padrão é o bucket público do Cloudflare R2, que é
 // endereço público mesmo — não é segredo, e deixá-lo aqui evita ter de

@@ -6,18 +6,43 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
 import { isBigSize, money, priceOf, productTitle, tierIndex, useCatalog, whatsappUrl, type Product, type Team } from './catalog';
 
-/** `pers`: personalização pedida pelo cliente (nome e número), se houver. */
-export type CartItem = { id: string; size: string; qty: number; pers?: string };
+/** O que o cliente pede para estampar na camisa (tudo opcional). */
+export type Personalizacao = { nome?: string; numero?: string; patch?: string };
+/** `pers`: texto livre de carrinhos antigos, de antes dos campos separados. */
+export type CartItem = { id: string; size: string; qty: number; pers?: string } & Personalizacao;
 const KEY = 'arkad-carrinho';
 const MAX_QTY = 20;
+
+/** Identifica a linha: a mesma camisa com outro nome ou patch é outra linha. */
+export const chave = (i: CartItem) => [i.id, i.size, i.nome ?? '', i.numero ?? '', i.patch ?? '', i.pers ?? ''].join('|');
+
+/** A personalização em uma linha de texto ("" = sem personalização). */
+export function persText(i: CartItem) {
+  const partes = [
+    i.nome?.trim() && `nome ${i.nome.trim()}`,
+    i.numero?.trim() && `número ${i.numero.trim()}`,
+    i.patch && `patch ${i.patch}`,
+    i.pers?.trim(),
+  ].filter(Boolean) as string[];
+  if (!partes.length) return '';
+  const texto = partes.join(' · ');
+  return texto[0].toUpperCase() + texto.slice(1);
+}
+
+/** Limpa o que veio do formulário: nome em maiúsculas, número só com dígitos. */
+export function limparPersonalizacao(p: Personalizacao): Personalizacao {
+  const nome = (p.nome ?? '').trim().toUpperCase();
+  const numero = (p.numero ?? '').replace(/\D/g, '').slice(0, 2);
+  return { ...(nome && { nome }), ...(numero && { numero }), ...(p.patch && { patch: p.patch }) };
+}
 
 type CartCtx = {
   items: CartItem[];
   count: number;
-  add: (id: string, size: string, qty?: number) => void;
-  setQty: (id: string, size: string, qty: number) => void;
-  setPers: (id: string, size: string, pers: string) => void;
-  remove: (id: string, size: string) => void;
+  add: (id: string, size: string, qty?: number, pers?: Personalizacao) => void;
+  /** Muda a quantidade da linha (pela chave); 0 remove. */
+  setQty: (linha: string, qty: number) => void;
+  remove: (linha: string) => void;
   clear: () => void;
   /** Último item adicionado, para o aviso "adicionado ao carrinho". */
   last: { id: string; size: string; at: number } | null;
@@ -44,25 +69,20 @@ export function CartProvider({ children }: { children: ReactNode }) {
     try { localStorage.setItem(KEY, JSON.stringify(items)); } catch { /* navegador sem armazenamento */ }
   }, [items]);
 
-  const same = (a: CartItem, id: string, size: string) => a.id === id && a.size === size;
-
-  const add = useCallback((id: string, size: string, qty = 1) => {
+  const add = useCallback((id: string, size: string, qty = 1, pers: Personalizacao = {}) => {
+    const novo: CartItem = { id, size, qty, ...limparPersonalizacao(pers) };
     setItems((list) => {
-      const found = list.find((i) => same(i, id, size));
+      const found = list.find((i) => chave(i) === chave(novo));
       if (found) return list.map((i) => (i === found ? { ...i, qty: Math.min(i.qty + qty, MAX_QTY) } : i));
-      return [...list, { id, size, qty }];
+      return [...list, novo];
     });
     setLast({ id, size, at: Date.now() });
   }, []);
 
-  const setQty = useCallback((id: string, size: string, qty: number) => {
+  const setQty = useCallback((linha: string, qty: number) => {
     setItems((list) => (qty <= 0
-      ? list.filter((i) => !same(i, id, size))
-      : list.map((i) => (same(i, id, size) ? { ...i, qty: Math.min(qty, MAX_QTY) } : i))));
-  }, []);
-
-  const setPers = useCallback((id: string, size: string, pers: string) => {
-    setItems((list) => list.map((i) => (same(i, id, size) ? { ...i, pers } : i)));
+      ? list.filter((i) => chave(i) !== linha)
+      : list.map((i) => (chave(i) === linha ? { ...i, qty: Math.min(qty, MAX_QTY) } : i))));
   }, []);
 
   const value = useMemo<CartCtx>(() => ({
@@ -70,12 +90,11 @@ export function CartProvider({ children }: { children: ReactNode }) {
     count: items.reduce((n, i) => n + i.qty, 0),
     add,
     setQty,
-    setPers,
-    remove: (id, size) => setQty(id, size, 0),
+    remove: (linha) => setQty(linha, 0),
     clear: () => setItems([]),
     last,
     dismiss: () => setLast(null),
-  }), [items, add, setQty, setPers, last]);
+  }), [items, add, setQty, last]);
 
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 }
@@ -129,7 +148,7 @@ export function useCartSummary() {
     return {
       lines, count, tier: tierIndex(count), subtotal, saving: full - subtotal, pending, next,
       bigSizes: lines.some((l) => l.big),
-      personalized: lines.some((l) => l.pers?.trim()),
+      personalized: lines.some((l) => persText(l) !== ''),
     };
   }, [items, count, productById, teamBySlug]);
 }
@@ -159,7 +178,7 @@ export const sizeText = (l: CartLine) =>
 export function orderText(summary: CartSummary, entrega: Entrega, codigo?: string | null) {
   const linhas = summary.lines.map((l, n) => {
     const preco = l.unit === undefined ? 'preço a confirmar' : `${l.qty} × ${money(l.unit)} = ${money(l.total!)}`;
-    const pers = l.pers?.trim() ? `\n   Personalização: ${l.pers.trim()}` : '';
+    const pers = persText(l) ? `\n   Personalização: ${persText(l)} (valor a confirmar)` : '';
     return `${n + 1}. ${productTitle(l.product, l.team)}\n   Tamanho: ${sizeText(l)} · ${preco}${pers}\n   Código: ${l.product.id}`;
   });
   const partes = [

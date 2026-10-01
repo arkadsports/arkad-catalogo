@@ -4,7 +4,7 @@
 // lança erro e, se o ERP estiver fora do ar ou desligado (ERP_URL vazio), o
 // site segue como antes: preços do config.ts e pedido só pelo WhatsApp.
 import { ERP_URL } from '../config';
-import type { CartSummary, Entrega } from './cart';
+import { persText, type CartSummary, type Entrega } from './cart';
 import { img, priceKey, productTitle } from './catalog';
 
 export type Faixas = readonly [number, number, number, number, number];
@@ -67,7 +67,7 @@ export async function enviarPedido(summary: CartSummary, entrega: Entrega): Prom
         titulo: productTitle(l.product, l.team),
         tamanho: l.size || undefined,
         qtd: l.qty,
-        personalizacao: l.pers?.trim() || undefined,
+        personalizacao: persText(l) || undefined,
         // Em desenvolvimento as fotos são locais (/img); só endereço público serve.
         foto: foto.startsWith('https://') ? foto : undefined,
       };
