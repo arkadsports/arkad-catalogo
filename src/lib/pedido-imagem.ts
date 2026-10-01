@@ -125,7 +125,6 @@ export async function gerarImagemPedido(summary: CartSummary, entrega: Entrega, 
       ['Peças', `${summary.count} (preço da faixa ${TIER_LABELS[summary.tier]})`],
       ...(summary.saving > 0 ? [['Desconto por quantidade', `− ${money(summary.saving)}`, VERDE] as [string, string, string]] : []),
       ['Frete', 'Grátis', VERDE],
-      ['Imposto de importação', 'Incluso'],
     ];
     y += 48;
     for (const [rotulo, valor, cor] of linhasResumo) {
@@ -162,7 +161,7 @@ export async function gerarImagemPedido(summary: CartSummary, entrega: Entrega, 
     // Rodapé
     y += 56;
     pinta(() => { ctx.fillStyle = '#021733'; ctx.fillRect(0, y, W, 96); });
-    texto(`Sob encomenda · entrega em ${STORE.leadTime} · imposto incluso · frete grátis`, W / 2, y + 58, `600 22px ${TEXTO}`, '#DCE9FB', 'center');
+    texto(`Sob encomenda · entrega em ${STORE.leadTime} · frete grátis para todo o Brasil`, W / 2, y + 58, `600 22px ${TEXTO}`, '#DCE9FB', 'center');
     return y + 96;
   };
 

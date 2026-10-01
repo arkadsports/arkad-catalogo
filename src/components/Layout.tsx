@@ -69,7 +69,7 @@ export default function Layout() {
       <AvisoCarrinho />
       <footer className="site-footer">
         <div className="wrap">
-          <p><b>{STORE.name}</b> · Pedido sob encomenda · Entrega em {STORE.leadTime} · Imposto de importação incluso · Frete grátis para todo o Brasil</p>
+          <p><b>{STORE.name}</b> · Pedido sob encomenda · Entrega em {STORE.leadTime} · Frete grátis para todo o Brasil</p>
           <p>Quanto mais peças no pedido, menor o preço de cada uma. O pagamento é combinado pelo WhatsApp.</p>
           <p>Tamanhos grandes (XXL em diante) e personalização com nome e número têm acréscimo.</p>
         </div>

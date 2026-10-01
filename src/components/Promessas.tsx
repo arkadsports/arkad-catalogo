@@ -1,13 +1,12 @@
-// As quatro garantias da loja (config.ts, PROMESSAS).
+// As garantias da loja (config.ts, PROMESSAS).
 //   "faixa":  a barra fina no topo de todas as páginas
 //   "painel": os cartões em destaque na abertura e no carrinho
-import { Clock, Package, ReceiptText, Truck, type LucideIcon } from 'lucide-react';
+import { Clock, Package, Truck, type LucideIcon } from 'lucide-react';
 import { PROMESSAS } from '../config';
 
 const ICONES: Record<(typeof PROMESSAS)[number]['icone'], LucideIcon> = {
   encomenda: Package,
   prazo: Clock,
-  imposto: ReceiptText,
   frete: Truck,
 };
 

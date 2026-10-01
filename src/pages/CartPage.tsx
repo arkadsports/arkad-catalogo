@@ -234,7 +234,6 @@ export default function CartPage() {
             <div><dt>Peças</dt><dd>{count}</dd></div>
             {saving > 0 && <div className="economia"><dt>Desconto por quantidade</dt><dd>− {money(saving)}</dd></div>}
             <div><dt>Frete</dt><dd className="gratis">Grátis</dd></div>
-            <div><dt>Imposto de importação</dt><dd>Incluso</dd></div>
             <div className="total"><dt>Total</dt><dd>{money(subtotal)}</dd></div>
           </dl>
           {pending > 0 && (

@@ -38,6 +38,7 @@ A etapa 2 roda de novo sempre que você baixar fotos novas ou mudar as regras de
 | `scripts/download-images.mjs` | Etapa 3: baixa as fotos em 2 tamanhos (600 px e 1600 px) |
 | `scripts/download-flags.mjs` | Baixa as bandeiras dos países (`npm run flags`) |
 | `scripts/montar-vitrine.mjs` | Monta as camisas do carrossel da abertura (`npm run vitrine`); fotos de vestiário em `data/vitrine/` (veja `data/vitrine/PROMPT.md`) |
+| `scripts/lib/destaque.mjs` | A camisa que representa cada time: a mais recente, de preferência a de torcedor titular. Vira a capa do clube/seleção no `build-catalog` e a camisa do carrossel |
 | `scripts/fotos-em-lotes.mjs` | Baixa tudo em lotes, subindo para o R2 e apagando o local (`npm run fotos`) |
 | `scripts/detectar-marca.mjs` | Mede a marca d'água de cada foto do R2 (`npm run detectar-marca`); a regra fica em `scripts/lib/marca.mjs` |
 | `scripts/testar-r2.mjs` | Confere as chaves do R2 antes de subir (`npm run testar-r2`) |

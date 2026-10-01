@@ -20,7 +20,6 @@ export const ERP_URL = (
 export const PROMESSAS = [
   { icone: 'encomenda', titulo: 'Pedido sob encomenda', texto: 'Direto do fornecedor para você' },
   { icone: 'prazo', titulo: `Entrega em ${STORE.leadTime}`, texto: 'Acompanhamento pelo WhatsApp' },
-  { icone: 'imposto', titulo: 'Imposto de importação incluso', texto: 'O preço que você vê é o final' },
   { icone: 'frete', titulo: 'Frete grátis para todo o Brasil', texto: 'Sem custo extra na entrega' },
 ] as const;
 

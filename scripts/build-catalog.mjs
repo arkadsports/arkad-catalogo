@@ -13,6 +13,7 @@ import {
 } from './lib/classify.mjs';
 import { podeMostrar } from './lib/marca.mjs';
 import { indiceCapa as indiceCapaDoAlbum } from './lib/capa.mjs';
+import { destaque } from './lib/destaque.mjs';
 
 const RAW = path.resolve('data/raw');
 const OUT = path.resolve('public/data');
@@ -134,10 +135,16 @@ async function main() {
 
   // 4) Contagens, capa de cada time e países
   products.sort((a, b) => b.y - a.y || a.t.localeCompare(b.t));
+  // Capa do time: a camisa mais recente (scripts/lib/destaque.mjs).
+  const porTime = new Map();
   for (const p of products) {
-    const tm = teams.get(p.team);
-    tm.products++;
-    if (!tm.cover && p.ph) { tm.cover = p.id; tm.coverC = p.c; }
+    teams.get(p.team).products++;
+    if (!porTime.has(p.team)) porTime.set(p.team, []);
+    porTime.get(p.team).push(p);
+  }
+  for (const [slug, lista] of porTime) {
+    const capa = destaque(lista);
+    if (capa) { const tm = teams.get(slug); tm.cover = capa.id; tm.coverC = capa.c; }
   }
   const usedTeams = [...teams.values()].filter((t) => t.products > 0 || t.locked > 0)
     .sort((a, b) => b.products - a.products || a.name.localeCompare(b.name));

@@ -15,6 +15,7 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import sharp from 'sharp';
+import { destaque } from './lib/destaque.mjs';
 
 const ROOT = path.resolve(import.meta.dirname, '..');
 const OUT = path.join(ROOT, 'public', 'hero');
@@ -36,24 +37,11 @@ const CLUBES = [
 const catalogo = JSON.parse(await fs.readFile(path.join(ROOT, 'public/data/catalog.json'), 'utf8'));
 const capas = JSON.parse(await fs.readFile(path.join(ROOT, 'data/raw/capas.json'), 'utf8'));
 
-/** Nota de cada produto para virar propaganda do clube. Vence, nesta ordem:
- *  a temporada mais nova, ser camisa de torcedor, ser o uniforme titular e,
- *  para desempatar, ter mais fotos. */
-function nota(p) {
-  let n = p.y * 1000;
-  if (p.type === 'Torcedor') n += 400;
-  else if (p.type === 'Jogador') n += 300;
-  const nome = (p.n || '').toLowerCase();
-  if (nome.includes('titular')) n += 200;
-  else if (nome.includes('reserva')) n += 60;
-  return n + Math.min(p.ph, 20);
-}
-
+// A camisa de cada clube: a mesma regra da capa dos times (lib/destaque.mjs).
 const VITRINE = [];
 for (const c of CLUBES) {
-  const candidatos = catalogo.products.filter((p) => p.team === c.slug && p.ph > 0);
-  if (!candidatos.length) { console.warn(`sem produto com foto: ${c.time}`); continue; }
-  const escolhido = candidatos.reduce((a, b) => (nota(b) > nota(a) ? b : a));
+  const escolhido = destaque(catalogo.products.filter((p) => p.team === c.slug));
+  if (!escolhido) { console.warn(`sem produto com foto: ${c.time}`); continue; }
   VITRINE.push({ id: escolhido.id, time: c.time, slug: c.slug });
   console.log(`${c.time.padEnd(14)} -> ${escolhido.s.padEnd(6)} ${escolhido.type.padEnd(9)} ${escolhido.n || ''}`);
 }

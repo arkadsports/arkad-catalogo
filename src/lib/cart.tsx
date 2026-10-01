@@ -171,7 +171,7 @@ export function orderText(summary: CartSummary, entrega: Entrega, codigo?: strin
     `Total: ${summary.count} ${summary.count === 1 ? 'peça' : 'peças'} · ${money(summary.subtotal)}`
       + (summary.pending ? ` + ${summary.pending} a confirmar` : ''),
     summary.saving > 0 ? `Desconto por quantidade: ${money(summary.saving)}` : null,
-    'Frete grátis · imposto de importação incluso',
+    'Frete grátis para todo o Brasil',
     '',
     '*Dados para entrega*',
     ...CAMPOS_ENTREGA.map(([k, rotulo]) => `${rotulo}: ${entrega[k].trim()}`),
