@@ -398,3 +398,42 @@ button.order:disabled { opacity: .6; cursor: progress; }
 .pers-patch select { width: 100%; }
 .cart-pers { font-size: 13px; color: var(--brand); }
 .cart-pers small { color: var(--muted); }
+
+/* ---------- Acompanhar pedido ---------- */
+.acompanhar { max-width: 760px; }
+.acompanhar-busca { display: flex; gap: 12px; align-items: flex-end; flex-wrap: wrap; margin-bottom: 8px; }
+.acompanhar-busca label { display: flex; flex-direction: column; gap: 4px; font-size: 13px; font-weight: 600; flex: 1 1 220px; }
+.acompanhar-busca input { border: 1px solid var(--line); border-radius: 10px; background: var(--surface); color: var(--ink); font: inherit; font-size: 16px; padding: 12px 14px; }
+.acompanhar-busca .order { padding-inline: 28px; margin: 0; border: 0; cursor: pointer; }
+.acompanhar-busca .order:disabled { opacity: .7; cursor: default; }
+.acompanhar-vazio { text-align: center; padding: 28px 0; color: var(--muted); }
+.acompanhar-vazio svg { margin: 0 auto 8px; }
+.acompanhar-vazio .order { display: inline-flex; padding-inline: 26px; }
+.pedido-card { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 16px; margin: 18px 0; box-shadow: var(--shadow); }
+.pedido-card header { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; flex-wrap: wrap; }
+.pedido-card h2 { font: 700 24px/1 var(--display); text-transform: uppercase; margin: 0 0 4px; }
+.pedido-situacao { font-size: 12px; font-weight: 700; padding: 4px 10px; border-radius: 999px; background: var(--chip); color: var(--brand); }
+.pedido-situacao.cancelado { color: #C62828; }
+.pedido-etapas { list-style: none; margin: 18px 0 6px; padding: 0; display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; }
+.pedido-etapas li { display: flex; flex-direction: column; align-items: center; gap: 6px; text-align: center; position: relative; }
+.pedido-etapas li:not(:last-child)::after { content: ""; position: absolute; top: 13px; left: calc(50% + 16px); right: calc(-50% + 16px); height: 2px; background: var(--line); }
+.pedido-etapas li[data-estado="feito"]::after { background: var(--brand); }
+.pedido-etapas .bolinha { width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; font-size: 12px; font-weight: 700; background: var(--chip); color: var(--muted); }
+.pedido-etapas li[data-estado="feito"] .bolinha { background: var(--brand); color: var(--brand-ink); }
+.pedido-etapas li[data-estado="atual"] .bolinha { background: var(--surface); color: var(--brand); box-shadow: inset 0 0 0 2px var(--brand); }
+.pedido-etapas .nome { font-size: 11px; line-height: 1.2; color: var(--muted); }
+.pedido-etapas li[data-estado="atual"] .nome { color: var(--ink); font-weight: 700; }
+.pedido-itens { list-style: none; margin: 14px 0; padding: 0; border-top: 1px solid var(--line); }
+.pedido-itens li { display: flex; align-items: center; gap: 10px; padding: 8px 0; border-bottom: 1px solid var(--line); }
+.pedido-itens img { width: 48px; height: 48px; object-fit: cover; border-radius: 8px; background: var(--photo); flex-shrink: 0; }
+.pedido-rastreio h3 { display: flex; align-items: center; gap: 6px; font: 700 18px/1 var(--display); text-transform: uppercase; margin: 0 0 8px; }
+.rastreio-codigo { margin: 0 0 8px; display: flex; flex-wrap: wrap; gap: 6px 10px; align-items: center; }
+.rastreio-codigo strong { font-family: ui-monospace, Menlo, Consolas, monospace; letter-spacing: .5px; }
+.rastreio-situacao { font-size: 12px; font-weight: 700; padding: 2px 8px; border-radius: 999px; background: var(--chip); }
+.rastreio-eventos { list-style: none; margin: 0; padding: 0 0 0 16px; border-left: 2px solid var(--line); }
+.rastreio-eventos li { position: relative; display: flex; flex-direction: column; padding: 4px 0 10px; }
+.rastreio-eventos li::before { content: ""; position: absolute; left: -22px; top: 10px; width: 10px; height: 10px; border-radius: 50%; background: var(--brand); }
+@media (max-width: 520px) {
+  .pedido-etapas .nome { font-size: 10px; }
+  .pedido-etapas li:not(:last-child)::after { left: calc(50% + 14px); right: calc(-50% + 14px); }
+}

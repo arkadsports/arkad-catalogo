@@ -50,6 +50,7 @@ export default function Layout() {
           <nav className="main-nav" aria-label="Principal">
             <NavLink to="/clubes">Clubes</NavLink>
             <NavLink to="/selecoes">Seleções</NavLink>
+            <NavLink to="/acompanhar">Meu pedido</NavLink>
           </nav>
           <form className="search" role="search" onSubmit={submit}>
             <input id="busca" type="search" value={q} onChange={(e) => setQ(e.target.value)}
@@ -72,6 +73,7 @@ export default function Layout() {
           <p><b>{STORE.name}</b> · Pedido sob encomenda · Entrega em {STORE.leadTime} · Frete grátis para todo o Brasil</p>
           <p>Quanto mais peças no pedido, menor o preço de cada uma. O pagamento é combinado pelo WhatsApp.</p>
           <p>Tamanhos grandes (XXL em diante) e personalização com nome e número têm acréscimo.</p>
+          <p><Link to="/acompanhar">Acompanhe o seu pedido</Link> com o telefone que você usou na compra.</p>
         </div>
       </footer>
     </>

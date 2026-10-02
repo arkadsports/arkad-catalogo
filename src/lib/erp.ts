@@ -137,3 +137,39 @@ export function registrarVisita(path: string, extra: { productRef?: string; team
   // text/plain não dispara a pergunta prévia (preflight) do navegador.
   navigator.sendBeacon(`${ERP_URL}/api/publico/visitas`, new Blob([corpo], { type: 'text/plain' }));
 }
+
+// ---------- Acompanhar pedido ----------
+
+export type EventoRastreio = { descricao: string; local: string | null; data: string };
+export type PedidoAcompanhado = {
+  codigo: string;
+  data: string;
+  cancelado: boolean;
+  situacao: string;
+  etapa: number;
+  etapas: string[];
+  itens: { titulo: string; tamanho: string | null; qtd: number; foto: string | null }[];
+  rastreio: {
+    codigo: string;
+    transportadora: string | null;
+    situacao: string;
+    aguardandoTaxa: boolean;
+    atualizadoEm: string;
+    eventos: EventoRastreio[];
+  } | null;
+};
+
+/** Pedidos do telefone informado, com a etapa e o rastreio cadastrados no ERP. */
+export async function consultarPedidos(
+  telefone: string,
+): Promise<{ pedidos: PedidoAcompanhado[] } | { erro: string }> {
+  if (!ERP_URL) return { erro: 'O acompanhamento está fora do ar. Fale com a gente pelo WhatsApp.' };
+  try {
+    const r = await comPrazo(`${ERP_URL}/api/publico/acompanhar?telefone=${encodeURIComponent(telefone)}`, {}, 8000);
+    const dados = await r.json().catch(() => null);
+    if (!r.ok) return { erro: dados?.error ?? 'Não conseguimos consultar agora. Tente de novo em instantes.' };
+    return { pedidos: Array.isArray(dados?.pedidos) ? dados.pedidos : [] };
+  } catch {
+    return { erro: 'Não conseguimos consultar agora. Tente de novo em instantes.' };
+  }
+}

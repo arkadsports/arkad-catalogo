@@ -273,6 +273,9 @@ export default function CartPage() {
               </li>
             </ol>
             {aviso && <p className="pp-aviso" role="status">{aviso}</p>}
+            {codigo && (
+              <p className="small">Depois da confirmação, acompanhe o pedido em <Link to="/acompanhar">Meu pedido</Link> com o seu telefone.</p>
+            )}
             <img className="pp-imagem" src={pronto.url} alt="Imagem do pedido com as peças, o total e os dados de entrega" />
             <a className="pp-baixar" href={pronto.url} download={pronto.arquivo.name}>
               <Download size={16} aria-hidden="true" /> Baixar a imagem

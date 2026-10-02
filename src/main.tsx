@@ -11,6 +11,7 @@ import TeamPage from './pages/TeamPage';
 import ProductPage from './pages/ProductPage';
 import SearchPage from './pages/SearchPage';
 import CartPage from './pages/CartPage';
+import AcompanharPage from './pages/AcompanharPage';
 
 // Rotas do site:
 //   /                 início (países, seleções, destaques)
@@ -21,6 +22,7 @@ import CartPage from './pages/CartPage';
 //   /produto/:id      página do produto com galeria e pedido
 //   /busca?q=         busca
 //   /carrinho         carrinho e fechamento do pedido pelo WhatsApp
+//   /acompanhar       acompanhar pedido pelo telefone (etapa e rastreio do ERP)
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <CatalogProvider>
@@ -36,6 +38,7 @@ createRoot(document.getElementById('root')!).render(
               <Route path="produto/:id" element={<ProductPage />} />
               <Route path="busca" element={<SearchPage />} />
               <Route path="carrinho" element={<CartPage />} />
+              <Route path="acompanhar" element={<AcompanharPage />} />
               <Route path="*" element={<p className="empty">Página não encontrada.</p>} />
             </Route>
           </Routes>
