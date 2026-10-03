@@ -173,9 +173,12 @@ export const CAMPOS_ENTREGA: [keyof Entrega, string][] = [
 export const sizeText = (l: CartLine) =>
   (l.size || 'a combinar') + (l.big ? ' (tamanho grande: acréscimo a confirmar)' : '');
 
+/** O que o cliente informa na conclusão da compra, além da entrega. */
+export type Conclusao = { pagamento: string; observacao: string };
+
 /** A mensagem do pedido que vai pronta para o WhatsApp. `codigo` é o número
  *  que o ERP deu ao pedido, para a loja achá-lo no painel. */
-export function orderText(summary: CartSummary, entrega: Entrega, codigo?: string | null) {
+export function orderText(summary: CartSummary, entrega: Entrega, codigo?: string | null, conclusao?: Conclusao) {
   const linhas = summary.lines.map((l, n) => {
     const preco = l.unit === undefined ? 'preço a confirmar' : `${l.qty} × ${money(l.unit)} = ${money(l.total!)}`;
     const pers = persText(l) ? `\n   Personalização: ${persText(l)} (valor a confirmar)` : '';
@@ -191,6 +194,8 @@ export function orderText(summary: CartSummary, entrega: Entrega, codigo?: strin
       + (summary.pending ? ` + ${summary.pending} a confirmar` : ''),
     summary.saving > 0 ? `Desconto por quantidade: ${money(summary.saving)}` : null,
     'Frete grátis para todo o Brasil',
+    conclusao?.pagamento ? `\n*Forma de pagamento:* ${conclusao.pagamento}` : null,
+    conclusao?.observacao.trim() ? `*Observações:* ${conclusao.observacao.trim()}` : null,
     '',
     '*Dados para entrega*',
     ...CAMPOS_ENTREGA.map(([k, rotulo]) => `${rotulo}: ${entrega[k].trim()}`),
@@ -199,5 +204,5 @@ export function orderText(summary: CartSummary, entrega: Entrega, codigo?: strin
   return partes.filter((p) => p !== null).join('\n').trim();
 }
 
-export const orderLink = (summary: CartSummary, entrega: Entrega, codigo?: string | null) =>
-  whatsappUrl(orderText(summary, entrega, codigo));
+export const orderLink = (summary: CartSummary, entrega: Entrega, codigo?: string | null, conclusao?: Conclusao) =>
+  whatsappUrl(orderText(summary, entrega, codigo, conclusao));

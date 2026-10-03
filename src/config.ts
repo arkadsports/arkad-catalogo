@@ -16,6 +16,14 @@ export const ERP_URL = (
   (import.meta.env.VITE_ERP_URL as string | undefined) ?? 'https://erp-arkad-sports.vercel.app'
 ).replace(/\/$/, '');
 
+// Formas de pagamento oferecidas na conclusão da compra. O pagamento em si é
+// combinado no WhatsApp; aqui o cliente só diz como prefere pagar.
+export const FORMAS_PAGAMENTO = [
+  { valor: 'Pix', detalhe: 'Enviamos a chave Pix no WhatsApp' },
+  { valor: 'Cartão de crédito', detalhe: 'Enviamos o link de pagamento no WhatsApp; parcelamento a combinar' },
+  { valor: 'Cartão de débito', detalhe: 'Enviamos o link de pagamento no WhatsApp' },
+] as const;
+
 // As garantias da loja: aparecem no topo de todas as páginas e na abertura.
 export const PROMESSAS = [
   { icone: 'encomenda', titulo: 'Pedido sob encomenda', texto: 'Direto do fornecedor para você' },

@@ -6,7 +6,7 @@
 // /foto/... (repasse configurado no vercel.json e no vite.config.ts).
 import { IMAGE_BASE, STORE } from '../config';
 import { money, TIER_LABELS } from './catalog';
-import { CAMPOS_ENTREGA, persText, sizeText, type CartSummary, type Entrega } from './cart';
+import { CAMPOS_ENTREGA, persText, sizeText, type CartSummary, type Conclusao, type Entrega } from './cart';
 
 const W = 1080;
 const PAD = 56;
@@ -49,7 +49,7 @@ function retanguloRedondo(ctx: CanvasRenderingContext2D, x: number, y: number, w
   ctx.roundRect(x, y, w, h, r);
 }
 
-export async function gerarImagemPedido(summary: CartSummary, entrega: Entrega, codigo?: string | null): Promise<Blob> {
+export async function gerarImagemPedido(summary: CartSummary, entrega: Entrega, codigo?: string | null, conclusao?: Conclusao): Promise<Blob> {
   await Promise.all([
     document.fonts.load(`800 40px ${COND}`), document.fonts.load(`700 40px ${COND}`),
     document.fonts.load(`500 20px ${TEXTO}`), document.fonts.load(`600 20px ${TEXTO}`),
@@ -125,6 +125,7 @@ export async function gerarImagemPedido(summary: CartSummary, entrega: Entrega, 
       ['Peças', `${summary.count} (preço da faixa ${TIER_LABELS[summary.tier]})`],
       ...(summary.saving > 0 ? [['Desconto por quantidade', `− ${money(summary.saving)}`, VERDE] as [string, string, string]] : []),
       ['Frete', 'Grátis', VERDE],
+      ...(conclusao?.pagamento ? [['Pagamento', conclusao.pagamento] as [string, string]] : []),
     ];
     y += 48;
     for (const [rotulo, valor, cor] of linhasResumo) {

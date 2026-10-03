@@ -4,7 +4,7 @@
 // lança erro e, se o ERP estiver fora do ar ou desligado (ERP_URL vazio), o
 // site segue como antes: preços do config.ts e pedido só pelo WhatsApp.
 import { ERP_URL } from '../config';
-import { persText, type CartSummary, type Entrega } from './cart';
+import { persText, type CartSummary, type Conclusao, type Entrega } from './cart';
 import { img, priceKey, productTitle } from './catalog';
 
 export type Faixas = readonly [number, number, number, number, number];
@@ -56,7 +56,7 @@ async function referencia(corpo: unknown) {
 }
 
 /** Registra o pedido no ERP. Devolve o código (ex.: ARK-0012), ou null. */
-export async function enviarPedido(summary: CartSummary, entrega: Entrega): Promise<string | null> {
+export async function enviarPedido(summary: CartSummary, entrega: Entrega, conclusao?: Conclusao): Promise<string | null> {
   if (!ERP_URL) return null;
   try {
     const itens = summary.lines.map((l) => {
@@ -78,7 +78,11 @@ export async function enviarPedido(summary: CartSummary, entrega: Entrega): Prom
     const r = await comPrazo(`${ERP_URL}/api/publico/pedidos`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ ref, cliente, itens, subtotalSite: summary.subtotal }),
+      body: JSON.stringify({
+        ref, cliente, itens, subtotalSite: summary.subtotal,
+        pagamento: conclusao?.pagamento || undefined,
+        observacao: conclusao?.observacao.trim() || undefined,
+      }),
     }, 6000);
     if (!r.ok) return null;
     const { codigo } = await r.json();

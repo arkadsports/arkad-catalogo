@@ -437,3 +437,25 @@ button.order:disabled { opacity: .6; cursor: progress; }
   .pedido-etapas .nome { font-size: 10px; }
   .pedido-etapas li:not(:last-child)::after { left: calc(50% + 14px); right: calc(-50% + 14px); }
 }
+
+/* ---------- Concluir compra ---------- */
+.voltar { display: inline-flex; align-items: center; gap: 6px; font-size: 14px; font-weight: 600; text-decoration: none; margin-bottom: 6px; }
+.carrinho-principal > .entrega + .entrega { margin-top: 16px; }
+fieldset.entrega { margin: 16px 0 0; min-width: 0; }
+fieldset.entrega legend { padding: 0; float: left; width: 100%; }
+fieldset.entrega legend + * { clear: both; }
+fieldset.entrega[aria-invalid="true"] { border-color: #C62828; }
+.pagamento-opcoes { display: grid; gap: 10px; margin: 12px 0 6px; }
+.pagamento-opcoes label { display: flex; gap: 12px; align-items: flex-start; padding: 12px 14px; border: 1px solid var(--line); border-radius: 12px; cursor: pointer; background: var(--surface); }
+.pagamento-opcoes label.escolhida { border-color: var(--brand); box-shadow: inset 0 0 0 1px var(--brand); }
+.pagamento-opcoes input { margin-top: 3px; accent-color: var(--brand); width: 18px; height: 18px; flex-shrink: 0; }
+.pagamento-opcoes span { display: flex; flex-direction: column; gap: 2px; }
+.pagamento-opcoes small { color: var(--muted); font-size: 13px; }
+.observacao { display: flex; flex-direction: column; gap: 6px; margin-top: 6px; }
+.observacao textarea { width: 100%; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); color: var(--ink); font: inherit; padding: 10px 12px; resize: vertical; }
+.resumo-itens { list-style: none; margin: 0 0 12px; padding: 0; }
+.resumo-itens li { display: grid; grid-template-columns: 44px 1fr auto; gap: 10px; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--line); font-size: 13px; }
+.resumo-itens li > :first-child { width: 44px; height: 44px; border-radius: 8px; overflow: hidden; }
+.resumo-itens li span { display: flex; flex-direction: column; min-width: 0; }
+.resumo-itens small { color: var(--muted); }
+.resumo .order.whatsapp { gap: 8px; }

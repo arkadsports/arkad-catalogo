@@ -12,6 +12,7 @@ import ProductPage from './pages/ProductPage';
 import SearchPage from './pages/SearchPage';
 import CartPage from './pages/CartPage';
 import AcompanharPage from './pages/AcompanharPage';
+import FinalizarPage from './pages/FinalizarPage';
 
 // Rotas do site:
 //   /                 início (países, seleções, destaques)
@@ -21,7 +22,8 @@ import AcompanharPage from './pages/AcompanharPage';
 //   /time/:slug       produtos de um time (filtro por tipo e temporada)
 //   /produto/:id      página do produto com galeria e pedido
 //   /busca?q=         busca
-//   /carrinho         carrinho e fechamento do pedido pelo WhatsApp
+//   /carrinho         carrinho: peças, faixa de preço e resumo
+//   /finalizar        concluir compra: entrega, pagamento e envio pelo WhatsApp
 //   /acompanhar       acompanhar pedido pelo telefone (etapa e rastreio do ERP)
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
@@ -38,6 +40,7 @@ createRoot(document.getElementById('root')!).render(
               <Route path="produto/:id" element={<ProductPage />} />
               <Route path="busca" element={<SearchPage />} />
               <Route path="carrinho" element={<CartPage />} />
+              <Route path="finalizar" element={<FinalizarPage />} />
               <Route path="acompanhar" element={<AcompanharPage />} />
               <Route path="*" element={<p className="empty">Página não encontrada.</p>} />
             </Route>
