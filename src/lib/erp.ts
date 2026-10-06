@@ -5,7 +5,7 @@
 // site segue como antes: preços do config.ts e pedido só pelo WhatsApp.
 import { ERP_URL } from '../config';
 import { persText, type CartSummary, type Conclusao, type Entrega } from './cart';
-import { img, priceKey, productTitle } from './catalog';
+import { img, pastaDe, priceKey, productTitle } from './catalog';
 
 export type Faixas = readonly [number, number, number, number, number];
 
@@ -60,7 +60,7 @@ export async function enviarPedido(summary: CartSummary, entrega: Entrega, concl
   if (!ERP_URL) return null;
   try {
     const itens = summary.lines.map((l) => {
-      const foto = img(l.id, l.product.c ?? 0, 'thumb');
+      const foto = img(pastaDe(l.product), l.product.c ?? 0, 'thumb');
       return {
         produto: l.id,
         chave: priceKey(l.product),

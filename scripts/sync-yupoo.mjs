@@ -9,6 +9,7 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import * as cheerio from 'cheerio';
 import pLimit from 'p-limit';
+import { ARQUIVO_VERSOES, lerVersoes } from './lib/pasta.mjs';
 
 // O endereço do fornecedor fica no .env, nunca no código: este repositório é
 // público e o fornecedor é informação do negócio, não do projeto.
@@ -130,15 +131,16 @@ async function main() {
   console.log(`   ${Object.keys(albums).length} álbuns únicos`);
 
   // A capa de cada álbum (a foto da peça inteira) vai também para capas.json,
-  // que é onde o build-catalog e a vitrine a procuram. Capa já conhecida fica.
+  // que é onde o build-catalog e a vitrine a procuram. Vale a da listagem
+  // atual: quando o fornecedor refaz o álbum, a capa antiga deixa de existir.
   const arquivoCapas = path.join(RAW, 'capas.json');
   const capas = JSON.parse(await fs.readFile(arquivoCapas, 'utf8').catch(() => '{}'));
   let novasCapas = 0;
   for (const a of Object.values(albums)) {
-    if (a.cover && !capas[a.id]) { capas[a.id] = a.cover; novasCapas++; }
+    if (a.cover && capas[a.id] !== a.cover) { capas[a.id] = a.cover; novasCapas++; }
   }
   await fs.writeFile(arquivoCapas, JSON.stringify(capas));
-  if (novasCapas) console.log(`   ${novasCapas} capas novas em capas.json`);
+  if (novasCapas) console.log(`   ${novasCapas} capas novas ou trocadas em capas.json`);
 
   console.log('3/3 Lendo a lista de fotos de cada álbum...');
   const ids = Object.keys(albums).filter((id) => !albums[id].locked);
@@ -146,6 +148,8 @@ async function main() {
   if (lockedCount) console.log(`   ${lockedCount} álbuns têm senha no Yupoo e foram pulados (peça a senha ao fornecedor)`);
   const photoLimit = pLimit(3);
   let n = 0, skipped = 0, failed = 0;
+  const refeitos = []; // álbuns que já existiam e o fornecedor trocou as fotos
+  const fotoId = (u) => u.split('/')[4];
   await Promise.all(ids.map((id) => photoLimit(async () => {
     const file = path.join(PHOTOS, `${id}.json`);
     if (!REFRESH) {
@@ -153,6 +157,8 @@ async function main() {
     }
     try {
       const urls = await readAlbumPhotos(id);
+      const antes = JSON.parse(await fs.readFile(file, 'utf8').catch(() => '[]'));
+      if (antes.length && urls.length && antes.map(fotoId).join() !== urls.map(fotoId).join()) refeitos.push(id);
       await fs.writeFile(file, JSON.stringify(urls));
     } catch (e) {
       failed++;
@@ -163,7 +169,26 @@ async function main() {
     await sleep(250);
   })));
   console.log(`Pronto. Novos: ${n}, já existiam: ${skipped}, falhas: ${failed}.`);
-  console.log('Próximo passo: npm run build-catalog');
+
+  // Álbum refeito: as fotos novas vão para uma pasta nova no R2 (lib/pasta.mjs),
+  // e o fotos-em-lotes e o detectar-marca passam a tratá-lo como ainda não feito.
+  if (refeitos.length) {
+    const versoes = await lerVersoes();
+    const arqImagens = path.resolve('data/images.json'), arqMarcas = path.resolve('data/marcas.json');
+    const imagens = JSON.parse(await fs.readFile(arqImagens, 'utf8').catch(() => '{}'));
+    const marcas = JSON.parse(await fs.readFile(arqMarcas, 'utf8').catch(() => '{}'));
+    for (const id of refeitos) {
+      if (!(id in imagens)) continue; // nunca foi baixado: não há o que refazer
+      versoes[id] = (versoes[id] || 1) + 1;
+      imagens[id] = 0;
+      delete marcas[id];
+    }
+    await fs.writeFile(ARQUIVO_VERSOES, JSON.stringify(versoes, null, 1));
+    await fs.writeFile(arqImagens, JSON.stringify(imagens));
+    await fs.writeFile(arqMarcas, JSON.stringify(marcas));
+    console.log(`   ${refeitos.length} álbuns tiveram as fotos trocadas pelo fornecedor: vão ser baixados de novo.`);
+  }
+  console.log('Próximo passo: npm run fotos, npm run detectar-marca e npm run build-catalog');
 }
 
 main().catch((e) => { console.error(e); process.exit(1); });

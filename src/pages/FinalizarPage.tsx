@@ -4,7 +4,7 @@
 import { useEffect, useRef, useState, type FormEvent } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowLeft, Check, Download, ImageIcon, MessageCircle } from 'lucide-react';
-import { money, productName, useCatalog } from '../lib/catalog';
+import { money, pastaDe, productName, useCatalog } from '../lib/catalog';
 import { CAMPOS_ENTREGA, chave, orderLink, persText, useCartSummary, type Conclusao, type Entrega } from '../lib/cart';
 import { buscarCep, carregarEntrega, mascaraCep, mascaraCpf, mascaraTelefone, salvarEntrega, validarEntrega } from '../lib/entrega';
 import { gerarImagemPedido } from '../lib/pedido-imagem';
@@ -195,7 +195,7 @@ export default function FinalizarPage() {
           <ul className="resumo-itens">
             {lines.map((l) => (
               <li key={chave(l)}>
-                <Photo id={l.id} index={l.product.c ?? 0} alt={productName(l.product)} has={l.product.ph > 0} />
+                <Photo id={pastaDe(l.product)} index={l.product.c ?? 0} alt={productName(l.product)} has={l.product.ph > 0} />
                 <span>
                   {l.team?.name} · {l.product.type}{l.product.s ? ` ${l.product.s}` : ''}
                   <small>{l.qty} × tam. {l.size || 'a combinar'}{persText(l) ? ` · ${persText(l)}` : ''}</small>

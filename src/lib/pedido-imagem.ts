@@ -5,7 +5,7 @@
 // canvas e o PNG não sairia. Por isso elas passam pelo próprio site, em
 // /foto/... (repasse configurado no vercel.json e no vite.config.ts).
 import { IMAGE_BASE, STORE } from '../config';
-import { money, TIER_LABELS } from './catalog';
+import { money, pastaDe, TIER_LABELS } from './catalog';
 import { CAMPOS_ENTREGA, persText, sizeText, type CartSummary, type Conclusao, type Entrega } from './cart';
 
 const W = 1080;
@@ -54,7 +54,7 @@ export async function gerarImagemPedido(summary: CartSummary, entrega: Entrega, 
     document.fonts.load(`800 40px ${COND}`), document.fonts.load(`700 40px ${COND}`),
     document.fonts.load(`500 20px ${TEXTO}`), document.fonts.load(`600 20px ${TEXTO}`),
   ]).catch(() => {});
-  const fotos = await Promise.all(summary.lines.map((l) => carregar(fotoUrl(l.id, l.product.c ?? 0))));
+  const fotos = await Promise.all(summary.lines.map((l) => carregar(fotoUrl(pastaDe(l.product), l.product.c ?? 0))));
 
   // Duas passadas: a primeira só mede a altura, a segunda desenha.
   const desenhar = (ctx: CanvasRenderingContext2D, medir: boolean) => {

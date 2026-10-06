@@ -13,6 +13,7 @@ import path from 'node:path';
 import pLimit from 'p-limit';
 import { criarMedidor, diferencaDeFundo, miniatura, podeMostrar, temMarca } from './lib/marca.mjs';
 import { indiceCapa } from './lib/capa.mjs';
+import { lerVersoes, pastaDoAlbum } from './lib/pasta.mjs';
 
 const ROOT = path.resolve(import.meta.dirname, '..');
 const SAIDA = path.join(ROOT, 'data', 'marcas.json');
@@ -34,6 +35,7 @@ const notas = TUDO ? {} : JSON.parse(await fs.readFile(SAIDA, 'utf8').catch(() =
 const pendentes = Object.entries(fotosPorAlbum)
   .filter(([id, n]) => n > 0 && (notas[id]?.length !== n || notas[id].some((x) => !x || x.length < 3)));
 const capas = JSON.parse(await fs.readFile(path.join(RAW, 'capas.json'), 'utf8').catch(() => '{}'));
+const versoes = await lerVersoes();
 const totalFotos = pendentes.reduce((s, [, n]) => s + n, 0);
 console.log(`${pendentes.length} álbuns a medir (${totalFotos} fotos).`);
 
@@ -59,7 +61,8 @@ await Promise.all(pendentes.map(([id, n]) => limite(async () => {
   // A capa primeiro: o fundo de cada foto é comparado com o dela.
   const c = await indiceCapa(RAW, capas, id);
   const bufs = [];
-  for (let i = 0; i < n; i++) bufs.push(await baixar(`${R2}/${id}/${i}-thumb.webp`));
+  const pasta = pastaDoAlbum(id, versoes);
+  for (let i = 0; i < n; i++) bufs.push(await baixar(`${R2}/${pasta}/${i}-thumb.webp`));
   const miniCapa = bufs[c] ? await miniatura(bufs[c]).catch(() => null) : null;
   const lista = [];
   for (const buf of bufs) {

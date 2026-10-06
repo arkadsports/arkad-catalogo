@@ -14,6 +14,7 @@ import {
 import { podeMostrar } from './lib/marca.mjs';
 import { indiceCapa as indiceCapaDoAlbum } from './lib/capa.mjs';
 import { destaque } from './lib/destaque.mjs';
+import { lerVersoes, pastaDoAlbum } from './lib/pasta.mjs';
 
 const RAW = path.resolve('data/raw');
 const OUT = path.resolve('public/data');
@@ -34,6 +35,7 @@ async function main() {
   const images = await readJson(IMAGES_MANIFEST, {}); // { albumId: nº de fotos baixadas }
   const capas = await readJson(path.join(RAW, 'capas.json'), {}); // { albumId: url da capa }
   const marcas = await readJson(MARCAS, {}); // { albumId: [[luz, cor, fundo], ...] }
+  const versoes = await lerVersoes(); // álbuns com fotos refeitas (lib/pasta.mjs)
 
   // Nenhuma foto com a marca d'água do fornecedor vai para o site. Fica só a
   // capa (sempre limpa) e as fotos da peça inteira em que o detector não vê
@@ -130,6 +132,7 @@ async function main() {
       ph: images[a.id] || 0,           // fotos baixadas (0 = ainda sem imagem)
       c,                               // qual dessas fotos é a capa
       x: fotosEscondidas(a.id, c, images[a.id] || 0), // fotos fora do site (marca d'água)
+      f: versoes[a.id] > 1 ? pastaDoAlbum(a.id, versoes) : undefined, // pasta no R2, se refeito (lib/pasta.mjs)
     });
   }
 
@@ -144,7 +147,8 @@ async function main() {
   }
   for (const [slug, lista] of porTime) {
     const capa = destaque(lista);
-    if (capa) { const tm = teams.get(slug); tm.cover = capa.id; tm.coverC = capa.c; }
+    // `cover` é a pasta das fotos no R2, não o código do produto.
+    if (capa) { const tm = teams.get(slug); tm.cover = capa.f ?? capa.id; tm.coverC = capa.c; }
   }
   const usedTeams = [...teams.values()].filter((t) => t.products > 0 || t.locked > 0)
     .sort((a, b) => b.products - a.products || a.name.localeCompare(b.name));

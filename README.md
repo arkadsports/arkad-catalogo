@@ -85,6 +85,14 @@ Para só **acrescentar o que o fornecedor lançou**, sem mexer no resto:
 `npm run sync` (lista só os álbuns novos) → `npm run fotos` (baixa as fotos
 deles e sobe para o R2) → `npm run detectar-marca` → `npm run build-catalog`.
 
+Para pegar também **as fotos que o fornecedor trocou** em álbuns que já
+estavam no site, troque o primeiro passo por `npm run sync -- --refresh`
+(relê a lista de fotos de todos os álbuns, uns 40 minutos). Ele percebe os
+álbuns refeitos e prepara cada um para baixar de novo numa **pasta nova no
+R2** (`<álbum>-v2`, `-v3`...; registro em `data/versoes.json`, regra em
+`scripts/lib/pasta.mjs`). Pasta nova, e não sobrescrever: as fotos têm cache
+de um ano, e o navegador do cliente continuaria mostrando a foto antiga.
+
 Tamanho estimado com todas as fotos: **5 a 8 GB**. Comece pelos times que você mais vende.
 
 **Álbuns com senha:** alguns álbuns do fornecedor são trancados (Liverpool e Juventus, por exemplo). O `sync` conta e pula esses álbuns, e o site mostra "há mais X modelos reservados". Para liberá-los, peça a senha ao fornecedor.

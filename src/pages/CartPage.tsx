@@ -3,7 +3,7 @@
 // onde informa entrega e pagamento antes de mandar o pedido.
 import { Link } from 'react-router-dom';
 import { MessageCircle, Minus, Plus, Trash2 } from 'lucide-react';
-import { money, productName, TIER_LABELS, useCatalog } from '../lib/catalog';
+import { money, pastaDe, productName, TIER_LABELS, useCatalog } from '../lib/catalog';
 import { chave, persText, useCart, useCartSummary } from '../lib/cart';
 import { AVISO_PERSONALIZACAO, AVISO_TAMANHO_GRANDE } from '../config';
 import { Loading, Photo } from '../components/cards';
@@ -40,7 +40,7 @@ export default function CartPage() {
               {lines.map((l) => (
                 <li key={chave(l)} className="cart-line">
                   <Link to={`/produto/${l.id}`} className="cart-photo">
-                    <Photo id={l.id} index={l.product.c ?? 0} alt={productName(l.product)} has={l.product.ph > 0} />
+                    <Photo id={pastaDe(l.product)} index={l.product.c ?? 0} alt={productName(l.product)} has={l.product.ph > 0} />
                   </Link>
                   <div className="cart-info">
                     <Link to={`/produto/${l.id}`} className="cart-name">

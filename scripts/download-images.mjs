@@ -17,6 +17,7 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import sharp from 'sharp';
 import pLimit from 'p-limit';
+import { lerVersoes, pastaDoAlbum } from './lib/pasta.mjs';
 
 // O endereço do fornecedor vem do .env (repositório público). Aqui ele serve
 // só de Referer: as fotos moram em outro host, listado em data/raw/photos.
@@ -48,6 +49,7 @@ async function download(url, tries = 3) {
 async function main() {
   const albums = JSON.parse(await fs.readFile(path.join(RAW, 'albums.json'), 'utf8'));
   const manifest = JSON.parse(await fs.readFile(MANIFEST, 'utf8').catch(() => '{}'));
+  const versoes = await lerVersoes();
   let ids = Object.keys(albums).filter((id) => !albums[id].locked);
 
   // Lista de álbuns vinda de um arquivo (usada pelo fotos-em-lotes.mjs).
@@ -76,7 +78,7 @@ async function main() {
     // costuma ser um recorte de tecido, e ainda traz a marca d'água dele.
     urls = urls.length > 1 ? [urls[urls.length - 1], ...urls.slice(0, -1)] : urls;
     if (args.covers) urls = urls.slice(0, 1);
-    const dir = path.join(IMG, id);
+    const dir = path.join(IMG, pastaDoAlbum(id, versoes)); // lib/pasta.mjs
     await fs.mkdir(dir, { recursive: true });
 
     let ok = 0;
