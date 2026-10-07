@@ -1,6 +1,6 @@
 # Arkad Sports · Catálogo
 
-Site com o catálogo completo de camisas, organizado **por país → time → produto**, com página de produto em tela cheia e zoom, e pedido pelo WhatsApp.
+Site com o catálogo completo de camisas, organizado **por país → time → produto**, com página de produto em tela cheia e zoom, e pedido pelo WhatsApp. No ar em **https://www.arkadsports.com** (o `arkadsports.com` sem www redireciona para ele).
 
 Mesma base técnica do app dos bancos: **React + TypeScript + Vite**, hospedado na **Vercel**. As fotos ficam no **Cloudflare R2** quando for publicar.
 
@@ -193,7 +193,7 @@ O painel de gestão (ERP, repositório `arkadsports/ERP---ARKAD`) é quem manda 
 - **Pedido:** do carrinho, "Comprar pelo WhatsApp" leva a `/finalizar`, onde o cliente informa entrega, forma de pagamento (`FORMAS_PAGAMENTO` no `src/config.ts`) e observação. Ao concluir, tudo vai para `/api/publico/pedidos`. O ERP devolve o número (ex.: ARK-0012), que entra na mensagem do WhatsApp e na imagem do pedido. Se o ERP falhar, o pedido segue pelo WhatsApp sem número.
 - **Visitas:** cada página aberta manda um aviso anônimo para `/api/publico/visitas` (identificador aleatório do navegador, sem dado pessoal). Abra o site com `?interno=1` no navegador da loja para ele não contar; `?interno=0` desfaz.
 
-O ERP só aceita chamadas vindas de `https://arkadsports.vercel.app` e `http://localhost:5173`. Com domínio próprio, cadastre-o na variável `CATALOGO_ORIGINS` do ERP.
+O ERP só aceita chamadas vindas de `https://www.arkadsports.com`, `https://arkadsports.com`, `https://arkadsports.vercel.app` e `http://localhost:5173` (lista em `lib/publico.ts` do ERP). Outro domínio precisa entrar nessa lista ou na variável `CATALOGO_ORIGINS` do ERP — sem isso, nele o site não lê os preços do ERP nem registra pedidos.
 
 ## Publicar
 
